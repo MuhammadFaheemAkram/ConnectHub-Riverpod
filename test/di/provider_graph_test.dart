@@ -52,6 +52,17 @@ void main() {
       addCommentUseCaseProvider,
       deleteCommentUseCaseProvider,
       likeCommentUseCaseProvider,
+      searchUseCaseProvider,
+      watchSearchPeopleUseCaseProvider,
+      watchSearchPostsUseCaseProvider,
+      watchRecentSearchesUseCaseProvider,
+      saveRecentSearchUseCaseProvider,
+      clearRecentSearchesUseCaseProvider,
+      watchNotificationsUseCaseProvider,
+      watchUnreadNotificationCountUseCaseProvider,
+      refreshNotificationsUseCaseProvider,
+      markNotificationReadUseCaseProvider,
+      markAllNotificationsReadUseCaseProvider,
     ]) {
       expect(() => container.read(provider), returnsNormally);
     }
@@ -154,6 +165,8 @@ void main() {
         feedRepositoryProvider,
         postRepositoryProvider,
         commentRepositoryProvider,
+        searchRepositoryProvider,
+        notificationRepositoryProvider,
         idGeneratorProvider,
         signedInUserIdProvider,
       ];
@@ -169,6 +182,8 @@ void main() {
       expect(container.read(feedRepositoryProvider.exists), isTrue);
       expect(container.read(postRepositoryProvider.exists), isTrue);
       expect(container.read(commentRepositoryProvider.exists), isTrue);
+      expect(container.read(searchRepositoryProvider.exists), isTrue);
+      expect(container.read(notificationRepositoryProvider.exists), isTrue);
       expect(container.read(signedInUserIdProvider.exists), isTrue);
       expect(container.read(likePostUseCaseProvider.exists), isFalse);
     });

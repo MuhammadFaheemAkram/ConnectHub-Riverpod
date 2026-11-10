@@ -37,8 +37,9 @@ void main() {
     expect(firstPost, findsOneWidget);
     expect(onCard(firstPost, find.text('Ada Lovelace')), findsOneWidget);
     expect(onCard(firstPost, find.text('142')), findsOneWidget);
-    // Seed times are rebased: p1 is 2h20m old.
-    expect(onCard(firstPost, find.text('2h')), findsOneWidget);
+    // Seed times are rebased: p1 is 3h old (2h55m before the newest seed
+    // record, which is five minutes old).
+    expect(onCard(firstPost, find.text('3h')), findsOneWidget);
   });
 
   test('a first launch never passes through an empty feed', () async {

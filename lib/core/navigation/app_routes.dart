@@ -3,6 +3,7 @@ import 'package:connect_hub_riverpod/features/feed/feed_page.dart';
 import 'package:connect_hub_riverpod/features/notifications/notifications_page.dart';
 import 'package:connect_hub_riverpod/features/post_detail/post_detail_page.dart';
 import 'package:connect_hub_riverpod/features/profile/profile_page.dart';
+import 'package:connect_hub_riverpod/features/profile/user_profile_page.dart';
 import 'package:connect_hub_riverpod/features/search/search_page.dart';
 import 'package:connect_hub_riverpod/features/settings/settings_page.dart';
 import 'package:connect_hub_riverpod/features/shell/main_shell.dart';
@@ -18,8 +19,8 @@ part 'app_routes.g.dart';
 //
 // The tree has two parts:
 // 1. the tab shell, one branch per tab;
-// 2. root-level screens, pushed *above* the shell: a post, the composer,
-//    Settings (and, in Phase 5, other people's profiles).
+// 2. root-level screens, pushed *above* the shell: a post, someone's
+//    profile, the composer, Settings.
 //
 // No sign-in gate: the demo user is always signed in (auth is out of scope).
 
@@ -138,6 +139,19 @@ class PostDetailRoute extends GoRouteData with $PostDetailRoute {
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       PostDetailPage(postId: postId);
+}
+
+/// `/users/:userId`: someone's profile, from search results and
+/// notifications (Phase 5 fills it in, and sends my own id to the tab).
+@TypedGoRoute<UserProfileRoute>(path: '/users/:userId')
+class UserProfileRoute extends GoRouteData with $UserProfileRoute {
+  const UserProfileRoute({required this.userId});
+
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      UserProfilePage(userId: userId);
 }
 
 /// `/compose`: a full-screen dialog (a close button instead of Back, and it

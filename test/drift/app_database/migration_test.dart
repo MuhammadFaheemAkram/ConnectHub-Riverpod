@@ -11,6 +11,7 @@ import 'generated/schema.dart';
 
 import 'generated/schema_v1.dart' as v1;
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -163,4 +164,67 @@ void main() {
       expect(await db.select(db.comments).get(), isEmpty);
     },
   );
+
+  test('v2 → v3 keeps the cached posts and comments, and adds recent '
+      'searches and notifications', () async {
+    final at = DateTime.utc(2026, 10, 11, 11).toIso8601String();
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch
+          ..insertAll(oldDb.users, [
+            const v2.UsersData(
+              id: 'u_ada',
+              name: 'Ada',
+              bio: '',
+              followersCount: 0,
+              followingCount: 0,
+            ),
+          ])
+          ..insertAll(oldDb.posts, [
+            v2.PostsData(
+              id: 'p1',
+              authorId: 'u_ada',
+              content: 'Hello',
+              createdAt: at,
+              likeCount: 1,
+              commentCount: 1,
+              isLiked: 0,
+            ),
+          ])
+          ..insertAll(oldDb.comments, [
+            v2.CommentsData(
+              id: 'c1',
+              postId: 'p1',
+              authorId: 'u_ada',
+              content: 'First!',
+              createdAt: at,
+              likeCount: 4,
+              isLiked: 1,
+            ),
+          ]);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.comments).get(), [
+          v3.CommentsData(
+            id: 'c1',
+            postId: 'p1',
+            authorId: 'u_ada',
+            content: 'First!',
+            createdAt: at,
+            likeCount: 4,
+            isLiked: 1,
+          ),
+        ]);
+        expect(await newDb.select(newDb.posts).get(), hasLength(1));
+        expect(await newDb.select(newDb.recentSearches).get(), isEmpty);
+        expect(await newDb.select(newDb.notifications).get(), isEmpty);
+      },
+    );
+  });
 }

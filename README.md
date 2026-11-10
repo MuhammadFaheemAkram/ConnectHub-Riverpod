@@ -45,8 +45,8 @@ Built in **strict, reviewable phases**. Each phase ends with:
 | 1 | Riverpod foundation: `ProviderScope`, the generator and riverpod_lint, the router as a provider, the design system, a 4-tab shell, CI | ✅ Done |
 | 2 | Feed: domain, fake server, drift v1, repositories and use cases as providers; `FeedController` (`AsyncNotifier`) | ✅ Done |
 | 3 | Post detail and comments (a family by post id; comment likes), Create Post; drift v2 | ✅ Done |
-| 4 | Search (debounce through disposal) and Notifications (filter, mark read, the tab badge); drift v3 | ⏳ Next |
-| 5 | Profile (mine and others'; Saved with Undo) and Settings (appearance, dynamic color, developer tools) | ⬜ |
+| 4 | Search (debounce through disposal) and Notifications (filter, mark read, the tab badge); drift v3 | ✅ Done |
+| 5 | Profile (mine and others'; Saved with Undo) and Settings (appearance, dynamic color, developer tools) | ⏳ Next |
 | 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; final polish | ⬜ |
 
 ---
@@ -56,8 +56,8 @@ Built in **strict, reviewable phases**. Each phase ends with:
 - 📰 **Feed** ✅: pull to refresh, infinite scroll, likes and saves (optimistic, with rollback), a New post button
 - 💬 **Post detail** ✅ with comments inline: add one, **like a comment**, delete your own
 - ✏️ **Create a post** ✅ with a 280-character counter and an optional image
-- 🔎 **Search** people and posts (debounced, live results), with recent searches
-- 🔔 **Notifications** with All / Unread filters, mark read, mark all read, and a tab badge
+- 🔎 **Search** ✅ people and posts (debounced, live results), with recent searches
+- 🔔 **Notifications** ✅ with All / Unread filters, mark read, mark all read, and a tab badge
 - 👤 **Profiles:** yours (Posts | Saved, with Undo) and other people's
 - ⚙️ **Settings:** System / Light / Dark, wallpaper colors on Android 12+, the badge, clear cache, a "Simulate network failure" switch, About
 - ♿ **Accessible:** dark mode and large text on every screen, checked by a test tour
@@ -107,7 +107,7 @@ Use case → Repository  (domain contracts; data implementations)
 
 ConnectHub-Flutter for comparison: `View → Cubit/Bloc → UseCase → Repository`, wired with `get_it`.
 
-**The provider graph after Phase 3** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
+**The provider graph after Phase 4** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
 
 ```
 ProviderScope (main.dart; automatic retry off)
@@ -121,13 +121,20 @@ ProviderScope (main.dart; automatic retry off)
 ├── feedRepositoryProvider           keepAlive   cursor paging
 ├── postRepositoryProvider           keepAlive   a post, a new post, optimistic likes and saves
 ├── commentRepositoryProvider        keepAlive   comments; optimistic delete and like
+├── searchRepositoryProvider         keepAlive   search, results by id, recent searches
+├── notificationRepositoryProvider   keepAlive   the server's read state
 ├── signedInUserIdProvider           keepAlive   'u_demo' (who "mine" is)
 ├── …UseCaseProviders                auto-dispose
 ├── feedPostsProvider                auto-dispose   drift stream
 ├── feedControllerProvider           auto-dispose   AsyncNotifier<FeedState> ← FeedPage
 ├── postDetailControllerProvider(id) auto-dispose family  ← PostDetailPage
 │     └── cachedPostProvider(id), postCommentsProvider(id)  stream families
-└── createPostControllerProvider     auto-dispose   Notifier<CreatePostState> ← CreatePostPage
+├── createPostControllerProvider     auto-dispose   Notifier<CreatePostState> ← CreatePostPage
+├── searchQueryControllerProvider    auto-dispose   Notifier<SearchState> ← SearchPage
+├── currentSearchResultsProvider     auto-dispose   Notifier<SearchResultsView> (synchronous)
+│     └── searchResultsProvider(q) ← searchPeople(q) / searchPosts(q) ← searchHits(q): ref.debounce(300 ms)
+├── notificationsControllerProvider  auto-dispose   AsyncNotifier ← kept alive by the shell's ref.listen
+└── unreadNotificationCountProvider  auto-dispose   Stream<int> (drift COUNT) → the tab badge
 ```
 
 ---
@@ -152,7 +159,9 @@ lib/
     ├── feed/                     # FeedController (+ feedPostsProvider), FeedState, FeedPage, widgets/
     ├── post_detail/              # PostDetailController (a family), PostDetailState, PostDetailPage
     ├── create_post/              # CreatePostController (a Notifier), CreatePostState, CreatePostPage
-    └── search/ notifications/ profile/ settings/   # placeholders for now
+    ├── search/                   # debounced search families, CurrentSearchResults, SearchPage
+    ├── notifications/            # NotificationsController, the unread count, NotificationsPage
+    └── profile/ settings/        # placeholders for now (Phase 5)
 test/                             # mirrors lib/; helpers/ (realStack, containers, fakes, pump helpers)
 ```
 
@@ -183,12 +192,13 @@ fvm flutter test
 - **The provider graph:** it resolves; an override reaches everything built on it, in one container only; what is kept alive and what isn't.
 - **The data layer on the real graph:** the fake server, drift (in memory), the repositories (paging, optimistic writes, rollback, one request at a time).
 - **Families:** each post id its own controller; leaving one post disposes its controller and its queries, not another's.
+- **Debounce in fake time:** three keystrokes, one search; no timer left; the previous results kept while the next query waits.
 - **Migrations:** every schema version migrates to the latest, and a cached feed survives v1 → v2 row for row.
 - **Pages and flows:** the Feed in every state with fake repositories; flows on the real stack (a like the server keeps or refuses, scrolling to the end, offline with and without a cache).
 - **The accessibility tour:** every screen and state, light and dark, at 200 % text.
 - **Architecture rules:** the domain is plain Dart; only `core/network/` knows the fake server; widgets never reach the data layer; no legacy providers.
 
-**337 tests** after Phase 3.
+**433 tests** after Phase 4.
 
 ---
 
@@ -205,7 +215,7 @@ fvm flutter test
   - screens render drift (SQLite) only; repositories refresh drift from the API;
   - cached posts show at once and offline;
   - likes, saves, comment likes and deleted comments change drift first, then the server, and are rolled back if it refuses;
-  - the schema is versioned (v2: comments), with generated, tested migrations.
+  - the schema is versioned (v2: comments; v3: recent searches, notifications), with generated, tested migrations.
 
 ---
 
@@ -216,6 +226,7 @@ fvm flutter test
 - [Phase 1 summary](docs/PHASE_1_SUMMARY.md): the foundation, the Riverpod concepts, the provider graph
 - [Phase 2 summary](docs/PHASE_2_SUMMARY.md): the feed, providers as the DI, `AsyncNotifier`, effects, the Feed with Bloc and with Riverpod
 - [Phase 3 summary](docs/PHASE_3_SUMMARY.md): families (a post by id), "not found" as an `AsyncError`, a form `Notifier`, comments and their likes, drift v2
+- [Phase 4 summary](docs/PHASE_4_SUMMARY.md): debounce through disposal, a Riverpod 3 rule about previous dependencies, streams combined with `ref.watch`, the badge
 
 ---
 

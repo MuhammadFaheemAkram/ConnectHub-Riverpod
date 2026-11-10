@@ -1,11 +1,15 @@
 import 'package:connect_hub_riverpod/core/database/app_database.steps.dart';
 import 'package:connect_hub_riverpod/core/database/daos/comments_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/feed_dao.dart';
+import 'package:connect_hub_riverpod/core/database/daos/notifications_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
+import 'package:connect_hub_riverpod/core/database/daos/search_dao.dart';
 import 'package:connect_hub_riverpod/core/database/tables/bookmarks_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/comments_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/feed_items_table.dart';
+import 'package:connect_hub_riverpod/core/database/tables/notifications_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/posts_table.dart';
+import 'package:connect_hub_riverpod/core/database/tables/recent_searches_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/users_table.dart';
 import 'package:drift/drift.dart';
 
@@ -21,8 +25,16 @@ part 'app_database.g.dart';
 /// the JSON packages: drift exports `Table`, `Column` and `JsonKey`, and
 /// those names would clash (conventions §11.1).
 @DriftDatabase(
-  tables: [Users, Posts, FeedItems, Bookmarks, Comments],
-  daos: [PostsDao, FeedDao, CommentsDao],
+  tables: [
+    Users,
+    Posts,
+    FeedItems,
+    Bookmarks,
+    Comments,
+    RecentSearches,
+    Notifications,
+  ],
+  daos: [PostsDao, FeedDao, CommentsDao, SearchDao, NotificationsDao],
 )
 class AppDatabase extends _$AppDatabase {
   /// [connection] comes from `databaseConnectionProvider`: a file in the
@@ -35,8 +47,9 @@ class AppDatabase extends _$AppDatabase {
   ///
   /// 1. Phase 2: users, posts, feed_items, bookmarks.
   /// 2. Phase 3: comments (with their likes).
+  /// 3. Phase 4: recent_searches, notifications.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -48,6 +61,10 @@ class AppDatabase extends _$AppDatabase {
     onUpgrade: stepByStep(
       from1To2: (m, schema) async {
         await m.createTable(schema.comments);
+      },
+      from2To3: (m, schema) async {
+        await m.createTable(schema.recentSearches);
+        await m.createTable(schema.notifications);
       },
     ),
     // SQLite ships with foreign keys *off*, per connection. Without this

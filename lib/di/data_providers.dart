@@ -4,10 +4,14 @@ import 'package:connect_hub_riverpod/core/database/app_database.dart';
 import 'package:connect_hub_riverpod/core/network/network_providers.dart';
 import 'package:connect_hub_riverpod/data/repository/comment_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/feed_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/notification_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/post_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/search_repository_impl.dart';
 import 'package:connect_hub_riverpod/domain/repository/comment_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/feed_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/notification_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/search_repository.dart';
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -68,3 +72,17 @@ CommentRepository commentRepository(Ref ref) => CommentRepositoryImpl(
   ref.watch(postRepositoryProvider),
   signedInUserId: ref.watch(signedInUserIdProvider),
 );
+
+@Riverpod(keepAlive: true)
+SearchRepository searchRepository(Ref ref) => SearchRepositoryImpl(
+  ref.watch(searchApiServiceProvider),
+  ref.watch(appDatabaseProvider).searchDao,
+  ref.watch(clockProvider),
+);
+
+@Riverpod(keepAlive: true)
+NotificationRepository notificationRepository(Ref ref) =>
+    NotificationRepositoryImpl(
+      ref.watch(notificationApiServiceProvider),
+      ref.watch(appDatabaseProvider).notificationsDao,
+    );

@@ -333,3 +333,97 @@ final class CommentApiServiceProvider
 }
 
 String _$commentApiServiceHash() => r'8f9f496a92b61d0335689d1ac576d8752c53a5e7';
+
+@ProviderFor(searchApiService)
+final searchApiServiceProvider = SearchApiServiceProvider._();
+
+final class SearchApiServiceProvider
+    extends
+        $FunctionalProvider<
+          SearchApiService,
+          SearchApiService,
+          SearchApiService
+        >
+    with $Provider<SearchApiService> {
+  SearchApiServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'searchApiServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$searchApiServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<SearchApiService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SearchApiService create(Ref ref) {
+    return searchApiService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SearchApiService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SearchApiService>(value),
+    );
+  }
+}
+
+String _$searchApiServiceHash() => r'9306458b184563aec7f4519c442ed4b35407a631';
+
+@ProviderFor(notificationApiService)
+final notificationApiServiceProvider = NotificationApiServiceProvider._();
+
+final class NotificationApiServiceProvider
+    extends
+        $FunctionalProvider<
+          NotificationApiService,
+          NotificationApiService,
+          NotificationApiService
+        >
+    with $Provider<NotificationApiService> {
+  NotificationApiServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationApiServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationApiServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotificationApiService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotificationApiService create(Ref ref) {
+    return notificationApiService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotificationApiService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotificationApiService>(value),
+    );
+  }
+}
+
+String _$notificationApiServiceHash() =>
+    r'1ed03016f8bb60892d879892df361852e34660e0';

@@ -11,6 +11,7 @@ part of 'app_routes.dart';
 List<RouteBase> get $appRoutes => [
   $mainShellRoute,
   $postDetailRoute,
+  $userProfileRoute,
   $createPostRoute,
   $settingsRoute,
 ];
@@ -162,6 +163,36 @@ mixin $PostDetailRoute on GoRouteData {
   @override
   String get location =>
       GoRouteData.$location('/posts/${Uri.encodeComponent(_self.postId)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $userProfileRoute => GoRouteData.$route(
+  path: '/users/:userId',
+  hasOverriddenOnExit: false,
+  factory: $UserProfileRoute._fromState,
+);
+
+mixin $UserProfileRoute on GoRouteData {
+  static UserProfileRoute _fromState(GoRouterState state) =>
+      UserProfileRoute(userId: state.pathParameters['userId']!);
+
+  UserProfileRoute get _self => this as UserProfileRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/users/${Uri.encodeComponent(_self.userId)}');
 
   @override
   void go(BuildContext context) => context.go(location);

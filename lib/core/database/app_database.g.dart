@@ -1802,6 +1802,767 @@ class CommentsCompanion extends UpdateCompanion<CommentRow> {
   }
 }
 
+class $RecentSearchesTable extends RecentSearches
+    with TableInfo<$RecentSearchesTable, RecentSearchRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RecentSearchesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _normalizedQueryMeta = const VerificationMeta(
+    'normalizedQuery',
+  );
+  @override
+  late final GeneratedColumn<String> normalizedQuery = GeneratedColumn<String>(
+    'normalized_query',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _displayTextMeta = const VerificationMeta(
+    'displayText',
+  );
+  @override
+  late final GeneratedColumn<String> displayText = GeneratedColumn<String>(
+    'display_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _searchedAtMeta = const VerificationMeta(
+    'searchedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> searchedAt = GeneratedColumn<DateTime>(
+    'searched_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    normalizedQuery,
+    displayText,
+    searchedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'recent_searches';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RecentSearchRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('normalized_query')) {
+      context.handle(
+        _normalizedQueryMeta,
+        normalizedQuery.isAcceptableOrUnknown(
+          data['normalized_query']!,
+          _normalizedQueryMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_normalizedQueryMeta);
+    }
+    if (data.containsKey('display_text')) {
+      context.handle(
+        _displayTextMeta,
+        displayText.isAcceptableOrUnknown(
+          data['display_text']!,
+          _displayTextMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_displayTextMeta);
+    }
+    if (data.containsKey('searched_at')) {
+      context.handle(
+        _searchedAtMeta,
+        searchedAt.isAcceptableOrUnknown(data['searched_at']!, _searchedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_searchedAtMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {normalizedQuery};
+  @override
+  RecentSearchRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RecentSearchRow(
+      normalizedQuery: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}normalized_query'],
+      )!,
+      displayText: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}display_text'],
+      )!,
+      searchedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}searched_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RecentSearchesTable createAlias(String alias) {
+    return $RecentSearchesTable(attachedDatabase, alias);
+  }
+}
+
+class RecentSearchRow extends DataClass implements Insertable<RecentSearchRow> {
+  /// The trimmed, lower-case query: what makes two spellings one entry.
+  final String normalizedQuery;
+
+  /// The query as last searched (trimmed): what the list shows.
+  final String displayText;
+
+  /// UTC. The list shows the most recent first.
+  final DateTime searchedAt;
+  const RecentSearchRow({
+    required this.normalizedQuery,
+    required this.displayText,
+    required this.searchedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['normalized_query'] = Variable<String>(normalizedQuery);
+    map['display_text'] = Variable<String>(displayText);
+    map['searched_at'] = Variable<DateTime>(searchedAt);
+    return map;
+  }
+
+  RecentSearchesCompanion toCompanion(bool nullToAbsent) {
+    return RecentSearchesCompanion(
+      normalizedQuery: Value(normalizedQuery),
+      displayText: Value(displayText),
+      searchedAt: Value(searchedAt),
+    );
+  }
+
+  factory RecentSearchRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RecentSearchRow(
+      normalizedQuery: serializer.fromJson<String>(json['normalizedQuery']),
+      displayText: serializer.fromJson<String>(json['displayText']),
+      searchedAt: serializer.fromJson<DateTime>(json['searchedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'normalizedQuery': serializer.toJson<String>(normalizedQuery),
+      'displayText': serializer.toJson<String>(displayText),
+      'searchedAt': serializer.toJson<DateTime>(searchedAt),
+    };
+  }
+
+  RecentSearchRow copyWith({
+    String? normalizedQuery,
+    String? displayText,
+    DateTime? searchedAt,
+  }) => RecentSearchRow(
+    normalizedQuery: normalizedQuery ?? this.normalizedQuery,
+    displayText: displayText ?? this.displayText,
+    searchedAt: searchedAt ?? this.searchedAt,
+  );
+  RecentSearchRow copyWithCompanion(RecentSearchesCompanion data) {
+    return RecentSearchRow(
+      normalizedQuery: data.normalizedQuery.present
+          ? data.normalizedQuery.value
+          : this.normalizedQuery,
+      displayText: data.displayText.present
+          ? data.displayText.value
+          : this.displayText,
+      searchedAt: data.searchedAt.present
+          ? data.searchedAt.value
+          : this.searchedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecentSearchRow(')
+          ..write('normalizedQuery: $normalizedQuery, ')
+          ..write('displayText: $displayText, ')
+          ..write('searchedAt: $searchedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(normalizedQuery, displayText, searchedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RecentSearchRow &&
+          other.normalizedQuery == this.normalizedQuery &&
+          other.displayText == this.displayText &&
+          other.searchedAt == this.searchedAt);
+}
+
+class RecentSearchesCompanion extends UpdateCompanion<RecentSearchRow> {
+  final Value<String> normalizedQuery;
+  final Value<String> displayText;
+  final Value<DateTime> searchedAt;
+  final Value<int> rowid;
+  const RecentSearchesCompanion({
+    this.normalizedQuery = const Value.absent(),
+    this.displayText = const Value.absent(),
+    this.searchedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RecentSearchesCompanion.insert({
+    required String normalizedQuery,
+    required String displayText,
+    required DateTime searchedAt,
+    this.rowid = const Value.absent(),
+  }) : normalizedQuery = Value(normalizedQuery),
+       displayText = Value(displayText),
+       searchedAt = Value(searchedAt);
+  static Insertable<RecentSearchRow> custom({
+    Expression<String>? normalizedQuery,
+    Expression<String>? displayText,
+    Expression<DateTime>? searchedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (normalizedQuery != null) 'normalized_query': normalizedQuery,
+      if (displayText != null) 'display_text': displayText,
+      if (searchedAt != null) 'searched_at': searchedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RecentSearchesCompanion copyWith({
+    Value<String>? normalizedQuery,
+    Value<String>? displayText,
+    Value<DateTime>? searchedAt,
+    Value<int>? rowid,
+  }) {
+    return RecentSearchesCompanion(
+      normalizedQuery: normalizedQuery ?? this.normalizedQuery,
+      displayText: displayText ?? this.displayText,
+      searchedAt: searchedAt ?? this.searchedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (normalizedQuery.present) {
+      map['normalized_query'] = Variable<String>(normalizedQuery.value);
+    }
+    if (displayText.present) {
+      map['display_text'] = Variable<String>(displayText.value);
+    }
+    if (searchedAt.present) {
+      map['searched_at'] = Variable<DateTime>(searchedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RecentSearchesCompanion(')
+          ..write('normalizedQuery: $normalizedQuery, ')
+          ..write('displayText: $displayText, ')
+          ..write('searchedAt: $searchedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $NotificationsTable extends Notifications
+    with TableInfo<$NotificationsTable, NotificationRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $NotificationsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  late final GeneratedColumnWithTypeConverter<NotificationRowKind, String>
+  kind = GeneratedColumn<String>(
+    'kind',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  ).withConverter<NotificationRowKind>($NotificationsTable.$converterkind);
+  static const VerificationMeta _contentMeta = const VerificationMeta(
+    'content',
+  );
+  @override
+  late final GeneratedColumn<String> content = GeneratedColumn<String>(
+    'content',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isReadMeta = const VerificationMeta('isRead');
+  @override
+  late final GeneratedColumn<bool> isRead = GeneratedColumn<bool>(
+    'is_read',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_read" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _postIdMeta = const VerificationMeta('postId');
+  @override
+  late final GeneratedColumn<String> postId = GeneratedColumn<String>(
+    'post_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _userIdMeta = const VerificationMeta('userId');
+  @override
+  late final GeneratedColumn<String> userId = GeneratedColumn<String>(
+    'user_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    kind,
+    content,
+    createdAt,
+    isRead,
+    postId,
+    userId,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'notifications';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<NotificationRow> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('content')) {
+      context.handle(
+        _contentMeta,
+        content.isAcceptableOrUnknown(data['content']!, _contentMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_contentMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('is_read')) {
+      context.handle(
+        _isReadMeta,
+        isRead.isAcceptableOrUnknown(data['is_read']!, _isReadMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isReadMeta);
+    }
+    if (data.containsKey('post_id')) {
+      context.handle(
+        _postIdMeta,
+        postId.isAcceptableOrUnknown(data['post_id']!, _postIdMeta),
+      );
+    }
+    if (data.containsKey('user_id')) {
+      context.handle(
+        _userIdMeta,
+        userId.isAcceptableOrUnknown(data['user_id']!, _userIdMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  NotificationRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return NotificationRow(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      kind: $NotificationsTable.$converterkind.fromSql(
+        attachedDatabase.typeMapping.read(
+          DriftSqlType.string,
+          data['${effectivePrefix}kind'],
+        )!,
+      ),
+      content: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      isRead: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_read'],
+      )!,
+      postId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}post_id'],
+      ),
+      userId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}user_id'],
+      ),
+    );
+  }
+
+  @override
+  $NotificationsTable createAlias(String alias) {
+    return $NotificationsTable(attachedDatabase, alias);
+  }
+
+  static JsonTypeConverter2<NotificationRowKind, String, String>
+  $converterkind = const EnumNameConverter<NotificationRowKind>(
+    NotificationRowKind.values,
+  );
+}
+
+class NotificationRow extends DataClass implements Insertable<NotificationRow> {
+  final String id;
+  final NotificationRowKind kind;
+
+  /// The notification's text. (A column named `text` would hide drift's
+  /// `text()` column builder.)
+  final String content;
+
+  /// UTC. The list shows the newest first.
+  final DateTime createdAt;
+  final bool isRead;
+
+  /// What tapping it opens, if anything: a post or a profile. Not references:
+  /// they may point at something that isn't cached (yet).
+  final String? postId;
+  final String? userId;
+  const NotificationRow({
+    required this.id,
+    required this.kind,
+    required this.content,
+    required this.createdAt,
+    required this.isRead,
+    this.postId,
+    this.userId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    {
+      map['kind'] = Variable<String>(
+        $NotificationsTable.$converterkind.toSql(kind),
+      );
+    }
+    map['content'] = Variable<String>(content);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['is_read'] = Variable<bool>(isRead);
+    if (!nullToAbsent || postId != null) {
+      map['post_id'] = Variable<String>(postId);
+    }
+    if (!nullToAbsent || userId != null) {
+      map['user_id'] = Variable<String>(userId);
+    }
+    return map;
+  }
+
+  NotificationsCompanion toCompanion(bool nullToAbsent) {
+    return NotificationsCompanion(
+      id: Value(id),
+      kind: Value(kind),
+      content: Value(content),
+      createdAt: Value(createdAt),
+      isRead: Value(isRead),
+      postId: postId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(postId),
+      userId: userId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(userId),
+    );
+  }
+
+  factory NotificationRow.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return NotificationRow(
+      id: serializer.fromJson<String>(json['id']),
+      kind: $NotificationsTable.$converterkind.fromJson(
+        serializer.fromJson<String>(json['kind']),
+      ),
+      content: serializer.fromJson<String>(json['content']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      isRead: serializer.fromJson<bool>(json['isRead']),
+      postId: serializer.fromJson<String?>(json['postId']),
+      userId: serializer.fromJson<String?>(json['userId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'kind': serializer.toJson<String>(
+        $NotificationsTable.$converterkind.toJson(kind),
+      ),
+      'content': serializer.toJson<String>(content),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'isRead': serializer.toJson<bool>(isRead),
+      'postId': serializer.toJson<String?>(postId),
+      'userId': serializer.toJson<String?>(userId),
+    };
+  }
+
+  NotificationRow copyWith({
+    String? id,
+    NotificationRowKind? kind,
+    String? content,
+    DateTime? createdAt,
+    bool? isRead,
+    Value<String?> postId = const Value.absent(),
+    Value<String?> userId = const Value.absent(),
+  }) => NotificationRow(
+    id: id ?? this.id,
+    kind: kind ?? this.kind,
+    content: content ?? this.content,
+    createdAt: createdAt ?? this.createdAt,
+    isRead: isRead ?? this.isRead,
+    postId: postId.present ? postId.value : this.postId,
+    userId: userId.present ? userId.value : this.userId,
+  );
+  NotificationRow copyWithCompanion(NotificationsCompanion data) {
+    return NotificationRow(
+      id: data.id.present ? data.id.value : this.id,
+      kind: data.kind.present ? data.kind.value : this.kind,
+      content: data.content.present ? data.content.value : this.content,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      isRead: data.isRead.present ? data.isRead.value : this.isRead,
+      postId: data.postId.present ? data.postId.value : this.postId,
+      userId: data.userId.present ? data.userId.value : this.userId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationRow(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isRead: $isRead, ')
+          ..write('postId: $postId, ')
+          ..write('userId: $userId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, kind, content, createdAt, isRead, postId, userId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is NotificationRow &&
+          other.id == this.id &&
+          other.kind == this.kind &&
+          other.content == this.content &&
+          other.createdAt == this.createdAt &&
+          other.isRead == this.isRead &&
+          other.postId == this.postId &&
+          other.userId == this.userId);
+}
+
+class NotificationsCompanion extends UpdateCompanion<NotificationRow> {
+  final Value<String> id;
+  final Value<NotificationRowKind> kind;
+  final Value<String> content;
+  final Value<DateTime> createdAt;
+  final Value<bool> isRead;
+  final Value<String?> postId;
+  final Value<String?> userId;
+  final Value<int> rowid;
+  const NotificationsCompanion({
+    this.id = const Value.absent(),
+    this.kind = const Value.absent(),
+    this.content = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.isRead = const Value.absent(),
+    this.postId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  NotificationsCompanion.insert({
+    required String id,
+    required NotificationRowKind kind,
+    required String content,
+    required DateTime createdAt,
+    required bool isRead,
+    this.postId = const Value.absent(),
+    this.userId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       kind = Value(kind),
+       content = Value(content),
+       createdAt = Value(createdAt),
+       isRead = Value(isRead);
+  static Insertable<NotificationRow> custom({
+    Expression<String>? id,
+    Expression<String>? kind,
+    Expression<String>? content,
+    Expression<DateTime>? createdAt,
+    Expression<bool>? isRead,
+    Expression<String>? postId,
+    Expression<String>? userId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (kind != null) 'kind': kind,
+      if (content != null) 'content': content,
+      if (createdAt != null) 'created_at': createdAt,
+      if (isRead != null) 'is_read': isRead,
+      if (postId != null) 'post_id': postId,
+      if (userId != null) 'user_id': userId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  NotificationsCompanion copyWith({
+    Value<String>? id,
+    Value<NotificationRowKind>? kind,
+    Value<String>? content,
+    Value<DateTime>? createdAt,
+    Value<bool>? isRead,
+    Value<String?>? postId,
+    Value<String?>? userId,
+    Value<int>? rowid,
+  }) {
+    return NotificationsCompanion(
+      id: id ?? this.id,
+      kind: kind ?? this.kind,
+      content: content ?? this.content,
+      createdAt: createdAt ?? this.createdAt,
+      isRead: isRead ?? this.isRead,
+      postId: postId ?? this.postId,
+      userId: userId ?? this.userId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(
+        $NotificationsTable.$converterkind.toSql(kind.value),
+      );
+    }
+    if (content.present) {
+      map['content'] = Variable<String>(content.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (isRead.present) {
+      map['is_read'] = Variable<bool>(isRead.value);
+    }
+    if (postId.present) {
+      map['post_id'] = Variable<String>(postId.value);
+    }
+    if (userId.present) {
+      map['user_id'] = Variable<String>(userId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('NotificationsCompanion(')
+          ..write('id: $id, ')
+          ..write('kind: $kind, ')
+          ..write('content: $content, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('isRead: $isRead, ')
+          ..write('postId: $postId, ')
+          ..write('userId: $userId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -1810,9 +2571,15 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $FeedItemsTable feedItems = $FeedItemsTable(this);
   late final $BookmarksTable bookmarks = $BookmarksTable(this);
   late final $CommentsTable comments = $CommentsTable(this);
+  late final $RecentSearchesTable recentSearches = $RecentSearchesTable(this);
+  late final $NotificationsTable notifications = $NotificationsTable(this);
   late final PostsDao postsDao = PostsDao(this as AppDatabase);
   late final FeedDao feedDao = FeedDao(this as AppDatabase);
   late final CommentsDao commentsDao = CommentsDao(this as AppDatabase);
+  late final SearchDao searchDao = SearchDao(this as AppDatabase);
+  late final NotificationsDao notificationsDao = NotificationsDao(
+    this as AppDatabase,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1823,6 +2590,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     feedItems,
     bookmarks,
     comments,
+    recentSearches,
+    notifications,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -3839,6 +4608,441 @@ typedef $$CommentsTableProcessedTableManager =
       CommentRow,
       PrefetchHooks Function({bool postId, bool authorId})
     >;
+typedef $$RecentSearchesTableCreateCompanionBuilder =
+    RecentSearchesCompanion Function({
+      required String normalizedQuery,
+      required String displayText,
+      required DateTime searchedAt,
+      Value<int> rowid,
+    });
+typedef $$RecentSearchesTableUpdateCompanionBuilder =
+    RecentSearchesCompanion Function({
+      Value<String> normalizedQuery,
+      Value<String> displayText,
+      Value<DateTime> searchedAt,
+      Value<int> rowid,
+    });
+
+class $$RecentSearchesTableFilterComposer
+    extends Composer<_$AppDatabase, $RecentSearchesTable> {
+  $$RecentSearchesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get normalizedQuery => $composableBuilder(
+    column: $table.normalizedQuery,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get displayText => $composableBuilder(
+    column: $table.displayText,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get searchedAt => $composableBuilder(
+    column: $table.searchedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$RecentSearchesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RecentSearchesTable> {
+  $$RecentSearchesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get normalizedQuery => $composableBuilder(
+    column: $table.normalizedQuery,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get displayText => $composableBuilder(
+    column: $table.displayText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get searchedAt => $composableBuilder(
+    column: $table.searchedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RecentSearchesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RecentSearchesTable> {
+  $$RecentSearchesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get normalizedQuery => $composableBuilder(
+    column: $table.normalizedQuery,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get displayText => $composableBuilder(
+    column: $table.displayText,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get searchedAt => $composableBuilder(
+    column: $table.searchedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$RecentSearchesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RecentSearchesTable,
+          RecentSearchRow,
+          $$RecentSearchesTableFilterComposer,
+          $$RecentSearchesTableOrderingComposer,
+          $$RecentSearchesTableAnnotationComposer,
+          $$RecentSearchesTableCreateCompanionBuilder,
+          $$RecentSearchesTableUpdateCompanionBuilder,
+          (
+            RecentSearchRow,
+            BaseReferences<
+              _$AppDatabase,
+              $RecentSearchesTable,
+              RecentSearchRow
+            >,
+          ),
+          RecentSearchRow,
+          PrefetchHooks Function()
+        > {
+  $$RecentSearchesTableTableManager(
+    _$AppDatabase db,
+    $RecentSearchesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RecentSearchesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RecentSearchesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RecentSearchesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> normalizedQuery = const Value.absent(),
+                Value<String> displayText = const Value.absent(),
+                Value<DateTime> searchedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RecentSearchesCompanion(
+                normalizedQuery: normalizedQuery,
+                displayText: displayText,
+                searchedAt: searchedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String normalizedQuery,
+                required String displayText,
+                required DateTime searchedAt,
+                Value<int> rowid = const Value.absent(),
+              }) => RecentSearchesCompanion.insert(
+                normalizedQuery: normalizedQuery,
+                displayText: displayText,
+                searchedAt: searchedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RecentSearchesTable, RecentSearchRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $RecentSearchesTable,
+                    RecentSearchRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$RecentSearchesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RecentSearchesTable,
+      RecentSearchRow,
+      $$RecentSearchesTableFilterComposer,
+      $$RecentSearchesTableOrderingComposer,
+      $$RecentSearchesTableAnnotationComposer,
+      $$RecentSearchesTableCreateCompanionBuilder,
+      $$RecentSearchesTableUpdateCompanionBuilder,
+      (
+        RecentSearchRow,
+        BaseReferences<_$AppDatabase, $RecentSearchesTable, RecentSearchRow>,
+      ),
+      RecentSearchRow,
+      PrefetchHooks Function()
+    >;
+typedef $$NotificationsTableCreateCompanionBuilder =
+    NotificationsCompanion Function({
+      required String id,
+      required NotificationRowKind kind,
+      required String content,
+      required DateTime createdAt,
+      required bool isRead,
+      Value<String?> postId,
+      Value<String?> userId,
+      Value<int> rowid,
+    });
+typedef $$NotificationsTableUpdateCompanionBuilder =
+    NotificationsCompanion Function({
+      Value<String> id,
+      Value<NotificationRowKind> kind,
+      Value<String> content,
+      Value<DateTime> createdAt,
+      Value<bool> isRead,
+      Value<String?> postId,
+      Value<String?> userId,
+      Value<int> rowid,
+    });
+
+class $$NotificationsTableFilterComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnWithTypeConverterFilters<
+    NotificationRowKind,
+    NotificationRowKind,
+    String
+  >
+  get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnWithTypeConverterFilters(column),
+  );
+
+  ColumnFilters<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isRead => $composableBuilder(
+    column: $table.isRead,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get postId => $composableBuilder(
+    column: $table.postId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$NotificationsTableOrderingComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+    column: $table.kind,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get content => $composableBuilder(
+    column: $table.content,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isRead => $composableBuilder(
+    column: $table.isRead,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get postId => $composableBuilder(
+    column: $table.postId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get userId => $composableBuilder(
+    column: $table.userId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$NotificationsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $NotificationsTable> {
+  $$NotificationsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumnWithTypeConverter<NotificationRowKind, String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+
+  GeneratedColumn<String> get content =>
+      $composableBuilder(column: $table.content, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<bool> get isRead =>
+      $composableBuilder(column: $table.isRead, builder: (column) => column);
+
+  GeneratedColumn<String> get postId =>
+      $composableBuilder(column: $table.postId, builder: (column) => column);
+
+  GeneratedColumn<String> get userId =>
+      $composableBuilder(column: $table.userId, builder: (column) => column);
+}
+
+class $$NotificationsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $NotificationsTable,
+          NotificationRow,
+          $$NotificationsTableFilterComposer,
+          $$NotificationsTableOrderingComposer,
+          $$NotificationsTableAnnotationComposer,
+          $$NotificationsTableCreateCompanionBuilder,
+          $$NotificationsTableUpdateCompanionBuilder,
+          (
+            NotificationRow,
+            BaseReferences<_$AppDatabase, $NotificationsTable, NotificationRow>,
+          ),
+          NotificationRow,
+          PrefetchHooks Function()
+        > {
+  $$NotificationsTableTableManager(_$AppDatabase db, $NotificationsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$NotificationsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$NotificationsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$NotificationsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<NotificationRowKind> kind = const Value.absent(),
+                Value<String> content = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<bool> isRead = const Value.absent(),
+                Value<String?> postId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationsCompanion(
+                id: id,
+                kind: kind,
+                content: content,
+                createdAt: createdAt,
+                isRead: isRead,
+                postId: postId,
+                userId: userId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required NotificationRowKind kind,
+                required String content,
+                required DateTime createdAt,
+                required bool isRead,
+                Value<String?> postId = const Value.absent(),
+                Value<String?> userId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => NotificationsCompanion.insert(
+                id: id,
+                kind: kind,
+                content: content,
+                createdAt: createdAt,
+                isRead: isRead,
+                postId: postId,
+                userId: userId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$NotificationsTable, NotificationRow>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $NotificationsTable,
+                    NotificationRow
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$NotificationsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $NotificationsTable,
+      NotificationRow,
+      $$NotificationsTableFilterComposer,
+      $$NotificationsTableOrderingComposer,
+      $$NotificationsTableAnnotationComposer,
+      $$NotificationsTableCreateCompanionBuilder,
+      $$NotificationsTableUpdateCompanionBuilder,
+      (
+        NotificationRow,
+        BaseReferences<_$AppDatabase, $NotificationsTable, NotificationRow>,
+      ),
+      NotificationRow,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3853,4 +5057,8 @@ class $AppDatabaseManager {
       $$BookmarksTableTableManager(_db, _db.bookmarks);
   $$CommentsTableTableManager get comments =>
       $$CommentsTableTableManager(_db, _db.comments);
+  $$RecentSearchesTableTableManager get recentSearches =>
+      $$RecentSearchesTableTableManager(_db, _db.recentSearches);
+  $$NotificationsTableTableManager get notifications =>
+      $$NotificationsTableTableManager(_db, _db.notifications);
 }

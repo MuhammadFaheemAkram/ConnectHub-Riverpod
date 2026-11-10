@@ -8,6 +8,7 @@ import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.da
 import 'package:connect_hub_riverpod/core/network/dto/post_dto.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
+import 'package:connect_hub_riverpod/domain/model/app_notification.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -73,18 +74,22 @@ void main() {
       DateTime createdAt(String id) =>
           posts.singleWhere((post) => post.id == id).createdAt;
 
-      // The newest seed record (posts and comments; Phase 4 adds the
-      // notifications) is comment c13 (July 24, 10:30). p1 was posted 2h15m
-      // before it, and p2 1h35m before p1.
+      // The newest seed record, across every file, is notification n1
+      // (July 24, 11:10). p1 was posted 2h55m before it, and p2 1h35m
+      // before p1. (Before Phase 4 brought the notifications in, it was
+      // comment c13, and p1 was 2h15m older than "five minutes ago".)
       final newest = testNow.subtract(FakeServer.newestSeedAge);
       expect(
         createdAt('p1'),
-        newest.subtract(const Duration(hours: 2, minutes: 15)),
+        newest.subtract(const Duration(hours: 2, minutes: 55)),
       );
       expect(
         createdAt('p1').difference(createdAt('p2')),
         const Duration(hours: 1, minutes: 35),
       );
+      final notifications = await server.getNotifications('u_demo');
+      expect(notifications.first.id, 'n1');
+      expect(notifications.first.createdAt, newest);
     });
 
     test('comment counts are derived from the comments, not the seed\'s '
@@ -157,6 +162,7 @@ void main() {
               SeedLoader.postsPath:
                   '[${post('pa')}, ${post('pc')}, ${post('pb')}]',
               SeedLoader.commentsPath: '[]',
+              SeedLoader.notificationsPath: '[]',
             }),
           ),
         ),
@@ -429,6 +435,132 @@ void main() {
         server.setCommentLiked('u_demo', 'c999', liked: true),
         throwsA(isA<NotFoundException>()),
       );
+    });
+  });
+
+  group('search', () {
+    /// Searches as the demo user and checks the ids found, in order.
+    Future<void> expectFound(
+      String query, {
+      List<String> people = const [],
+      List<String> posts = const [],
+    }) async {
+      final response = await server.search('u_demo', query);
+      expect(
+        [for (final user in response.users) user.id],
+        people,
+        reason: 'people matching "$query"',
+      );
+      expect(
+        [for (final post in response.posts) post.id],
+        posts,
+        reason: 'posts matching "$query"',
+      );
+    }
+
+    test(
+      'finds people by name and posts by their author, ignoring case',
+      () async {
+        await expectFound('ada', people: ['u_ada'], posts: ['p1', 'p6', 'p11']);
+        await expectFound(
+          '  ADA ',
+          people: ['u_ada'],
+          posts: ['p1', 'p6', 'p11'],
+        );
+      },
+    );
+
+    test('finds people by bio, and posts by content', () async {
+      await expectFound('moon', people: ['u_katherine']);
+      await expectFound('cache', posts: ['p15']);
+    });
+
+    test(
+      'lists the most followed people first, and posts newest first',
+      () async {
+        final response = await server.search('u_demo', 'in');
+
+        expect(response.users.map((user) => user.id), [
+          'u_linus',
+          'u_alan',
+          'u_katherine',
+        ]);
+        expect(response.posts.take(4).map((post) => post.id), [
+          'p1',
+          'p2',
+          'p3',
+          'p16',
+        ]);
+      },
+    );
+
+    test('leaves the viewer out of the people, not out of the posts', () async {
+      await expectFound('demo', posts: ['p16', 'p17', 'p8']);
+    });
+
+    test('a blank query, or one nothing matches, finds nothing', () async {
+      await expectFound('   ');
+      await expectFound('zzz');
+    });
+  });
+
+  group('notifications', () {
+    test('newest first, with their read state and links', () async {
+      final notifications = await server.getNotifications('u_demo');
+
+      expect(notifications.map((n) => n.id), [
+        'n1',
+        'n2',
+        'n3',
+        'n4',
+        'n5',
+        'n6',
+        'n7',
+        'n8',
+      ]);
+      expect(notifications.where((n) => !n.isRead).map((n) => n.id), [
+        'n1',
+        'n2',
+        'n3',
+      ]);
+      expect(notifications[0].postId, 'p16');
+      expect(notifications[2].userId, 'u_katherine');
+      expect(notifications[5].postId, isNull);
+      expect(notifications[5].userId, isNull);
+      expect(notifications.first.kind.name, NotificationKind.like.name);
+    });
+
+    test(
+      'the read state belongs to the server: marking one read sticks',
+      () async {
+        await server.markNotificationRead('u_demo', 'n1');
+        // Idempotent.
+        await server.markNotificationRead('u_demo', 'n1');
+
+        final n1 = (await server.getNotifications('u_demo')).first;
+        expect(n1.isRead, isTrue);
+      },
+    );
+
+    test(
+      "someone else's notification, like an unknown one, answers 404",
+      () async {
+        expect(
+          server.markNotificationRead('u_ada', 'n1'),
+          throwsA(isA<NotFoundException>()),
+        );
+        expect(
+          server.markNotificationRead('u_demo', 'n404'),
+          throwsA(isA<NotFoundException>()),
+        );
+      },
+    );
+
+    test('mark all read', () async {
+      await server.markAllNotificationsRead('u_demo');
+
+      final notifications = await server.getNotifications('u_demo');
+      expect(notifications.every((n) => n.isRead), isTrue);
     });
   });
 }

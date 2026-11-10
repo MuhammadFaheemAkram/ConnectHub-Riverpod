@@ -259,3 +259,97 @@ final class CommentRepositoryProvider
 }
 
 String _$commentRepositoryHash() => r'378d19229865579a04e1123b0530ee13493bd4a2';
+
+@ProviderFor(searchRepository)
+final searchRepositoryProvider = SearchRepositoryProvider._();
+
+final class SearchRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SearchRepository,
+          SearchRepository,
+          SearchRepository
+        >
+    with $Provider<SearchRepository> {
+  SearchRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'searchRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$searchRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SearchRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SearchRepository create(Ref ref) {
+    return searchRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SearchRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SearchRepository>(value),
+    );
+  }
+}
+
+String _$searchRepositoryHash() => r'7402d003720e66278b7023961d8a287ce9ff3e5f';
+
+@ProviderFor(notificationRepository)
+final notificationRepositoryProvider = NotificationRepositoryProvider._();
+
+final class NotificationRepositoryProvider
+    extends
+        $FunctionalProvider<
+          NotificationRepository,
+          NotificationRepository,
+          NotificationRepository
+        >
+    with $Provider<NotificationRepository> {
+  NotificationRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'notificationRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$notificationRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<NotificationRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  NotificationRepository create(Ref ref) {
+    return notificationRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(NotificationRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<NotificationRepository>(value),
+    );
+  }
+}
+
+String _$notificationRepositoryHash() =>
+    r'c44622116979649b2bf426ba8042cf749f5867bb';

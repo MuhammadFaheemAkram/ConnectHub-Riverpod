@@ -4,16 +4,18 @@ import 'package:connect_hub_riverpod/core/common/id_generator.dart';
 import 'package:connect_hub_riverpod/core/common/validators.dart';
 import 'package:connect_hub_riverpod/core/network/dto/comment_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.dart';
+import 'package:connect_hub_riverpod/core/network/dto/notification_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_page_dto.dart';
+import 'package:connect_hub_riverpod/core/network/dto/search_response_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/user_dto.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
 
 /// An in-memory stand-in for ConnectHub's backend.
 ///
 /// It plays the role a REST server would: it owns the data and its rules
-/// (profiles, posts, likes, bookmarks, comments and their likes, and from
-/// later phases search and notifications). The rest of the app reaches it **only**
+/// (profiles, posts, likes, bookmarks, comments and their likes, search and
+/// notifications). The rest of the app reaches it **only**
 /// through the `…ApiService` interfaces, so a real HTTP client could replace
 /// the fake services without changing any caller.
 ///
@@ -45,6 +47,9 @@ class FakeServer {
 
   /// Every comment, in the order they were added.
   final _comments = <_ServerComment>[];
+
+  /// Every notification, each for one user.
+  final _notifications = <_ServerNotification>[];
 
   /// How old the newest seed record is at launch (see [_seed]).
   static const newestSeedAge = Duration(minutes: 5);
@@ -243,6 +248,74 @@ class FakeServer {
   }
 
   // ---------------------------------------------------------------------------
+  // Search
+
+  /// People and posts matching [query], case-insensitively ("contains"):
+  /// - people by name or bio, except the viewer, the most followed first;
+  /// - posts by content or author name, newest first.
+  ///
+  /// A blank query matches nothing.
+  Future<SearchResponseDto> search(String viewerId, String query) async {
+    await _ready();
+    final needle = query.trim().toLowerCase();
+    if (needle.isEmpty) return const SearchResponseDto(users: [], posts: []);
+    bool matches(String text) => text.toLowerCase().contains(needle);
+
+    final people = [
+      for (final user in _users.values)
+        if (user.id != viewerId && (matches(user.name) || matches(user.bio)))
+          user,
+    ]..sort(_mostFollowedFirst);
+    return SearchResponseDto(
+      users: people,
+      posts: [
+        for (final post in _postsNewestFirst())
+          if (matches(post.content) || matches(_users[post.authorId]!.name))
+            _postDto(post, viewerId),
+      ],
+    );
+  }
+
+  // ---------------------------------------------------------------------------
+  // Notifications
+
+  /// [viewerId]'s notifications, newest first, each with its read state.
+  Future<List<NotificationDto>> getNotifications(String viewerId) async {
+    await _ready();
+    final mine =
+        [
+          for (final notification in _notifications)
+            if (notification.ownerId == viewerId) notification,
+        ]..sort((a, b) {
+          final byTime = b.createdAt.compareTo(a.createdAt);
+          return byTime != 0 ? byTime : a.id.compareTo(b.id);
+        });
+    return [for (final notification in mine) notification.toDto()];
+  }
+
+  /// Marks one of [viewerId]'s notifications read. Idempotent; anyone
+  /// else's (or an unknown id) answers [NotFoundException].
+  Future<void> markNotificationRead(
+    String viewerId,
+    String notificationId,
+  ) async {
+    await _ready();
+    final notification = _notifications.firstWhere(
+      (notification) =>
+          notification.id == notificationId && notification.ownerId == viewerId,
+      orElse: () => throw const NotFoundException(),
+    );
+    notification.isRead = true;
+  }
+
+  Future<void> markAllNotificationsRead(String viewerId) async {
+    await _ready();
+    for (final notification in _notifications) {
+      if (notification.ownerId == viewerId) notification.isRead = true;
+    }
+  }
+
+  // ---------------------------------------------------------------------------
   // Seeding
 
   Future<void> _ready() => _seeding ??= _seed();
@@ -251,6 +324,7 @@ class FakeServer {
     final demo = await _seeds.loadAuthUser();
     final posts = await _seeds.loadPosts();
     final comments = await _seeds.loadComments();
+    final notifications = await _seeds.loadNotifications();
 
     // The seed's dates are fixed (July 2026). Shift them all by the same
     // amount, so the newest record is a few minutes old whenever the app
@@ -259,6 +333,7 @@ class FakeServer {
     final newest = [
       for (final post in posts) post.createdAt,
       for (final comment in comments) comment.createdAt,
+      for (final notification in notifications) notification.createdAt,
     ].reduce((a, b) => a.isAfter(b) ? a : b);
     final launch = _clock.now().toUtc();
     final shift = launch.subtract(newestSeedAge).difference(newest);
@@ -289,6 +364,21 @@ class FakeServer {
           text: comment.text,
           createdAt: comment.createdAt.add(shift),
           seedLikes: seedCommentLikes[comment.id] ?? 0,
+        ),
+      );
+    }
+    // The seed's notifications are the demo user's.
+    for (final notification in notifications) {
+      _notifications.add(
+        _ServerNotification(
+          id: notification.id,
+          ownerId: demo.id,
+          kind: notification.kind,
+          text: notification.text,
+          createdAt: notification.createdAt.add(shift),
+          isRead: notification.isRead,
+          postId: notification.postId,
+          userId: notification.userId,
         ),
       );
     }
@@ -326,6 +416,11 @@ class FakeServer {
     likeCount: comment.likeCount,
     isLiked: comment.likedBy.contains(viewerId),
   );
+
+  static int _mostFollowedFirst(UserDto a, UserDto b) {
+    final byFollowers = b.followersCount.compareTo(a.followersCount);
+    return byFollowers != 0 ? byFollowers : a.name.compareTo(b.name);
+  }
 
   /// A public profile: the seed's demo user has an email, which never
   /// leaves the server.
@@ -405,6 +500,39 @@ final class _ServerComment {
     final byTime = a.createdAt.compareTo(b.createdAt);
     return byTime != 0 ? byTime : a.id.compareTo(b.id);
   }
+}
+
+/// A notification for one user ([ownerId]). Its read state is the server's.
+final class _ServerNotification {
+  _ServerNotification({
+    required this.id,
+    required this.ownerId,
+    required this.kind,
+    required this.text,
+    required this.createdAt,
+    required this.isRead,
+    required this.postId,
+    required this.userId,
+  });
+
+  final String id;
+  final String ownerId;
+  final NotificationKindDto kind;
+  final String text;
+  final DateTime createdAt;
+  bool isRead;
+  final String? postId;
+  final String? userId;
+
+  NotificationDto toDto() => NotificationDto(
+    id: id,
+    kind: kind,
+    text: text,
+    createdAt: createdAt,
+    isRead: isRead,
+    postId: postId,
+    userId: userId,
+  );
 }
 
 /// A position in the feed: "just after this post". Encoded as

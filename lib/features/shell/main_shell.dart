@@ -1,3 +1,6 @@
+import 'package:connect_hub_riverpod/core/design_system/design_system.dart';
+import 'package:connect_hub_riverpod/features/notifications/notifications_controller.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -5,15 +8,24 @@ import 'package:material_ui/material_ui.dart';
 ///
 /// [navigationShell] holds the four tab navigators in an IndexedStack; this
 /// widget only decides which branch is visible. Each tab screen brings its
-/// own `Scaffold`, `AppBar` and actions. Phase 4 adds the unread badge on
-/// Notifications, watched from a provider.
-class MainShell extends StatelessWidget {
+/// own `Scaffold`, `AppBar` and actions.
+///
+/// It also owns the Notifications badge: it watches the unread count, and
+/// *listens* to the notifications controller from launch, which keeps it
+/// alive (and loaded) for as long as the shell is there, before the tab is
+/// ever opened.
+class MainShell extends ConsumerWidget {
   const MainShell({super.key, required this.navigationShell});
 
   final StatefulNavigationShell navigationShell;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // A listener with nothing to do: its only job is to keep the controller
+    // alive, so the first load runs now and the badge is right.
+    ref.listen(notificationsControllerProvider, (_, _) {});
+    // `select`-free on purpose: a count is all this provider emits.
+    final unread = ref.watch(unreadNotificationCountProvider).value ?? 0;
     return Scaffold(
       body: navigationShell,
       // The tab labels keep their size whatever the text setting, as on iOS's
@@ -25,23 +37,29 @@ class MainShell extends StatelessWidget {
           selectedIndex: navigationShell.currentIndex,
           onDestinationSelected: _onDestinationSelected,
           // Order must match the branches declared in `app_routes.dart`.
-          destinations: const [
-            NavigationDestination(
+          destinations: [
+            const NavigationDestination(
               icon: Icon(Icons.home_outlined),
               selectedIcon: Icon(Icons.home),
               label: 'Feed',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.search_outlined),
               selectedIcon: Icon(Icons.search),
               label: 'Search',
             ),
             NavigationDestination(
-              icon: Icon(Icons.notifications_none),
-              selectedIcon: Icon(Icons.notifications),
+              icon: UnreadBadge(
+                count: unread,
+                child: const Icon(Icons.notifications_none),
+              ),
+              selectedIcon: UnreadBadge(
+                count: unread,
+                child: const Icon(Icons.notifications),
+              ),
               label: 'Notifications',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.person_outline),
               selectedIcon: Icon(Icons.person),
               label: 'Profile',

@@ -1,6 +1,7 @@
 import 'package:connect_hub_riverpod/core/database/app_database.dart';
 import 'package:connect_hub_riverpod/core/database/daos/comments_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
+import 'package:connect_hub_riverpod/core/database/tables/notifications_table.dart';
 
 import 'backend.dart';
 
@@ -56,4 +57,22 @@ CachedComment cachedComment(
     isLiked: isLiked,
   ),
   author: userRow(authorId),
+);
+
+/// A notification, [minutesAgo] minutes before [testNow].
+NotificationRow notificationRow(
+  String id, {
+  bool isRead = false,
+  int minutesAgo = 0,
+  NotificationRowKind kind = NotificationRowKind.like,
+  String? postId,
+  String? userId,
+}) => NotificationRow(
+  id: id,
+  kind: kind,
+  content: 'Notification $id',
+  createdAt: testNow.subtract(Duration(minutes: minutesAgo)),
+  isRead: isRead,
+  postId: postId,
+  userId: userId,
 );

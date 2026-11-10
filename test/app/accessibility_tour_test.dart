@@ -58,6 +58,7 @@ void main() {
         ('Post Detail', '/posts/p1'),
         ('Post Detail, no longer available', '/posts/p999'),
         ('Create Post', '/compose'),
+        ("Someone's profile (Phase 5)", '/users/u_ada'),
         ('Search', '/search'),
         ('Notifications', '/notifications'),
         ('Profile', '/profile'),
@@ -164,6 +165,47 @@ void main() {
         await tester.tap(find.byTooltip('Close'));
         await tester.pumpAndSettle();
         expect(find.text('Discard post?'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Search, with results and a recent search', (tester) async {
+        await open(tester, '/search');
+        await tester.enterText(find.byType(TextField), 'ada');
+        await tester.testTextInput.receiveAction(TextInputAction.search);
+        await tester.pumpAndSettle(const Duration(milliseconds: 300));
+        expect(find.text('Ada Lovelace'), findsWidgets);
+
+        await expectAccessible(tester);
+
+        await tester.tap(find.byTooltip('Clear search'));
+        await tester.pumpAndSettle();
+        expect(find.text('Recent searches'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Search, no results', (tester) async {
+        await open(tester, '/search');
+        await tester.enterText(find.byType(TextField), 'zzz');
+        await tester.pumpAndSettle(const Duration(milliseconds: 300));
+        expect(find.text('No results'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Notifications, unread only, then nothing unread', (
+        tester,
+      ) async {
+        await open(tester, '/notifications');
+        await tester.tap(find.widgetWithText(FilterChip, 'Unread'));
+        await tester.pumpAndSettle();
+
+        await expectAccessible(tester);
+
+        await tester.tap(find.text('Mark all read'));
+        await tester.pumpAndSettle();
+        expect(find.text('Nothing unread.'), findsOneWidget);
 
         await expectAccessible(tester);
       });

@@ -101,6 +101,12 @@ void main() {
     );
   });
 
+  test('streams are combined with ref.watch, not a stream library', () {
+    for (final package in ['stream_transform', 'rxdart']) {
+      expect(filesContaining("'package:$package/"), isEmpty, reason: package);
+    }
+  });
+
   test('one ProviderScope, in main.dart; no container outside it', () {
     expect(filesContaining('ProviderScope('), ['lib/main.dart']);
     expect(filesContaining('ProviderContainer('), isEmpty);

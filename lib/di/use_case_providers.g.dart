@@ -616,3 +616,535 @@ final class LikeCommentUseCaseProvider
 
 String _$likeCommentUseCaseHash() =>
     r'7fdc498e6bd0f9600cbf2b6359393f6685fb1f47';
+
+@ProviderFor(searchUseCase)
+final searchUseCaseProvider = SearchUseCaseProvider._();
+
+final class SearchUseCaseProvider
+    extends $FunctionalProvider<SearchUseCase, SearchUseCase, SearchUseCase>
+    with $Provider<SearchUseCase> {
+  SearchUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'searchUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$searchUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<SearchUseCase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  SearchUseCase create(Ref ref) {
+    return searchUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SearchUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SearchUseCase>(value),
+    );
+  }
+}
+
+String _$searchUseCaseHash() => r'cd92f1e2d58a74a3d38e1025e557fe6bd633d1d9';
+
+@ProviderFor(watchSearchPeopleUseCase)
+final watchSearchPeopleUseCaseProvider = WatchSearchPeopleUseCaseProvider._();
+
+final class WatchSearchPeopleUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchSearchPeopleUseCase,
+          WatchSearchPeopleUseCase,
+          WatchSearchPeopleUseCase
+        >
+    with $Provider<WatchSearchPeopleUseCase> {
+  WatchSearchPeopleUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchSearchPeopleUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchSearchPeopleUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchSearchPeopleUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchSearchPeopleUseCase create(Ref ref) {
+    return watchSearchPeopleUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchSearchPeopleUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchSearchPeopleUseCase>(value),
+    );
+  }
+}
+
+String _$watchSearchPeopleUseCaseHash() =>
+    r'b3db1cf1b152828d2f956b30beb91008a4c235e2';
+
+@ProviderFor(watchSearchPostsUseCase)
+final watchSearchPostsUseCaseProvider = WatchSearchPostsUseCaseProvider._();
+
+final class WatchSearchPostsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchSearchPostsUseCase,
+          WatchSearchPostsUseCase,
+          WatchSearchPostsUseCase
+        >
+    with $Provider<WatchSearchPostsUseCase> {
+  WatchSearchPostsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchSearchPostsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchSearchPostsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchSearchPostsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchSearchPostsUseCase create(Ref ref) {
+    return watchSearchPostsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchSearchPostsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchSearchPostsUseCase>(value),
+    );
+  }
+}
+
+String _$watchSearchPostsUseCaseHash() =>
+    r'f6a84ddd120a05c184aa964086603089451a4e4e';
+
+@ProviderFor(watchRecentSearchesUseCase)
+final watchRecentSearchesUseCaseProvider =
+    WatchRecentSearchesUseCaseProvider._();
+
+final class WatchRecentSearchesUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchRecentSearchesUseCase,
+          WatchRecentSearchesUseCase,
+          WatchRecentSearchesUseCase
+        >
+    with $Provider<WatchRecentSearchesUseCase> {
+  WatchRecentSearchesUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchRecentSearchesUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchRecentSearchesUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchRecentSearchesUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchRecentSearchesUseCase create(Ref ref) {
+    return watchRecentSearchesUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchRecentSearchesUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchRecentSearchesUseCase>(value),
+    );
+  }
+}
+
+String _$watchRecentSearchesUseCaseHash() =>
+    r'3120b36c46714b63fede9740179072a9cbdb8dc3';
+
+@ProviderFor(saveRecentSearchUseCase)
+final saveRecentSearchUseCaseProvider = SaveRecentSearchUseCaseProvider._();
+
+final class SaveRecentSearchUseCaseProvider
+    extends
+        $FunctionalProvider<
+          SaveRecentSearchUseCase,
+          SaveRecentSearchUseCase,
+          SaveRecentSearchUseCase
+        >
+    with $Provider<SaveRecentSearchUseCase> {
+  SaveRecentSearchUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'saveRecentSearchUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$saveRecentSearchUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<SaveRecentSearchUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SaveRecentSearchUseCase create(Ref ref) {
+    return saveRecentSearchUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SaveRecentSearchUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SaveRecentSearchUseCase>(value),
+    );
+  }
+}
+
+String _$saveRecentSearchUseCaseHash() =>
+    r'42289bf38f1f8f4ffcbda4a5949fff4e72f44525';
+
+@ProviderFor(clearRecentSearchesUseCase)
+final clearRecentSearchesUseCaseProvider =
+    ClearRecentSearchesUseCaseProvider._();
+
+final class ClearRecentSearchesUseCaseProvider
+    extends
+        $FunctionalProvider<
+          ClearRecentSearchesUseCase,
+          ClearRecentSearchesUseCase,
+          ClearRecentSearchesUseCase
+        >
+    with $Provider<ClearRecentSearchesUseCase> {
+  ClearRecentSearchesUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'clearRecentSearchesUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$clearRecentSearchesUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<ClearRecentSearchesUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ClearRecentSearchesUseCase create(Ref ref) {
+    return clearRecentSearchesUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ClearRecentSearchesUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ClearRecentSearchesUseCase>(value),
+    );
+  }
+}
+
+String _$clearRecentSearchesUseCaseHash() =>
+    r'995b294748936e0d5e9f2d3f8d27e21d4152acc4';
+
+@ProviderFor(watchNotificationsUseCase)
+final watchNotificationsUseCaseProvider = WatchNotificationsUseCaseProvider._();
+
+final class WatchNotificationsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchNotificationsUseCase,
+          WatchNotificationsUseCase,
+          WatchNotificationsUseCase
+        >
+    with $Provider<WatchNotificationsUseCase> {
+  WatchNotificationsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchNotificationsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchNotificationsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchNotificationsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchNotificationsUseCase create(Ref ref) {
+    return watchNotificationsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchNotificationsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchNotificationsUseCase>(value),
+    );
+  }
+}
+
+String _$watchNotificationsUseCaseHash() =>
+    r'542195a5d0c48a8a9c58b3721106e098ce38bdf0';
+
+@ProviderFor(watchUnreadNotificationCountUseCase)
+final watchUnreadNotificationCountUseCaseProvider =
+    WatchUnreadNotificationCountUseCaseProvider._();
+
+final class WatchUnreadNotificationCountUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchUnreadNotificationCountUseCase,
+          WatchUnreadNotificationCountUseCase,
+          WatchUnreadNotificationCountUseCase
+        >
+    with $Provider<WatchUnreadNotificationCountUseCase> {
+  WatchUnreadNotificationCountUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchUnreadNotificationCountUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() =>
+      _$watchUnreadNotificationCountUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchUnreadNotificationCountUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchUnreadNotificationCountUseCase create(Ref ref) {
+    return watchUnreadNotificationCountUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchUnreadNotificationCountUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchUnreadNotificationCountUseCase>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$watchUnreadNotificationCountUseCaseHash() =>
+    r'9382cf1e4f6ea2ab07f69dd36a5aaad981fdc53a';
+
+@ProviderFor(refreshNotificationsUseCase)
+final refreshNotificationsUseCaseProvider =
+    RefreshNotificationsUseCaseProvider._();
+
+final class RefreshNotificationsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          RefreshNotificationsUseCase,
+          RefreshNotificationsUseCase,
+          RefreshNotificationsUseCase
+        >
+    with $Provider<RefreshNotificationsUseCase> {
+  RefreshNotificationsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'refreshNotificationsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$refreshNotificationsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<RefreshNotificationsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RefreshNotificationsUseCase create(Ref ref) {
+    return refreshNotificationsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RefreshNotificationsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RefreshNotificationsUseCase>(value),
+    );
+  }
+}
+
+String _$refreshNotificationsUseCaseHash() =>
+    r'3fb033b19a33701316aaa76b89297c67a6c40db5';
+
+@ProviderFor(markNotificationReadUseCase)
+final markNotificationReadUseCaseProvider =
+    MarkNotificationReadUseCaseProvider._();
+
+final class MarkNotificationReadUseCaseProvider
+    extends
+        $FunctionalProvider<
+          MarkNotificationReadUseCase,
+          MarkNotificationReadUseCase,
+          MarkNotificationReadUseCase
+        >
+    with $Provider<MarkNotificationReadUseCase> {
+  MarkNotificationReadUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'markNotificationReadUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$markNotificationReadUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<MarkNotificationReadUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  MarkNotificationReadUseCase create(Ref ref) {
+    return markNotificationReadUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MarkNotificationReadUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MarkNotificationReadUseCase>(value),
+    );
+  }
+}
+
+String _$markNotificationReadUseCaseHash() =>
+    r'39d61a17efb0fc2d355073ce8a0e398ff35f5141';
+
+@ProviderFor(markAllNotificationsReadUseCase)
+final markAllNotificationsReadUseCaseProvider =
+    MarkAllNotificationsReadUseCaseProvider._();
+
+final class MarkAllNotificationsReadUseCaseProvider
+    extends
+        $FunctionalProvider<
+          MarkAllNotificationsReadUseCase,
+          MarkAllNotificationsReadUseCase,
+          MarkAllNotificationsReadUseCase
+        >
+    with $Provider<MarkAllNotificationsReadUseCase> {
+  MarkAllNotificationsReadUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'markAllNotificationsReadUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$markAllNotificationsReadUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<MarkAllNotificationsReadUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  MarkAllNotificationsReadUseCase create(Ref ref) {
+    return markAllNotificationsReadUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(MarkAllNotificationsReadUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<MarkAllNotificationsReadUseCase>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$markAllNotificationsReadUseCaseHash() =>
+    r'05a2b7501229b8b235d47c76a064ab0d2e9b7dbc';

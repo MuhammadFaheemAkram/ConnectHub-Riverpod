@@ -1,3 +1,4 @@
+import 'package:connect_hub_riverpod/domain/model/app_notification.dart';
 import 'package:connect_hub_riverpod/domain/model/comment.dart';
 import 'package:connect_hub_riverpod/domain/model/post.dart';
 import 'package:connect_hub_riverpod/domain/model/user.dart';
@@ -50,4 +51,27 @@ Comment sampleComment(
   likeCount: likeCount,
   isLiked: isLiked,
   isMine: isMine,
+);
+
+/// A notification, [minutesAgo] minutes before noon UTC on the test day.
+AppNotification sampleNotification(
+  String id, {
+  NotificationKind kind = NotificationKind.like,
+  bool isRead = false,
+  String? postId,
+  String? userId,
+  int minutesAgo = 0,
+}) => AppNotification(
+  id: id,
+  kind: kind,
+  text: 'Notification $id',
+  createdAt: DateTime.utc(
+    2026,
+    10,
+    11,
+    12,
+  ).subtract(Duration(minutes: minutesAgo)),
+  isRead: isRead,
+  postId: postId,
+  userId: userId,
 );

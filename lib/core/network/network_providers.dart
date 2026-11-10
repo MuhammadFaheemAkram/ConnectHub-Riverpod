@@ -4,7 +4,11 @@ import 'package:connect_hub_riverpod/core/network/api/comment_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_api_client.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_comment_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_feed_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_notification_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_search_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/feed_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/notification_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/search_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/asset_json_loader.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/network_simulator.dart';
@@ -64,3 +68,16 @@ CommentApiService commentApiService(Ref ref) => FakeCommentApiService(
   ref.watch(fakeApiClientProvider),
   ref.watch(fakeServerProvider),
 );
+
+@Riverpod(keepAlive: true)
+SearchApiService searchApiService(Ref ref) => FakeSearchApiService(
+  ref.watch(fakeApiClientProvider),
+  ref.watch(fakeServerProvider),
+);
+
+@Riverpod(keepAlive: true)
+NotificationApiService notificationApiService(Ref ref) =>
+    FakeNotificationApiService(
+      ref.watch(fakeApiClientProvider),
+      ref.watch(fakeServerProvider),
+    );

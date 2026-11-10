@@ -8,7 +8,9 @@ import 'package:connect_hub_riverpod/core/network/network_providers.dart';
 import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/domain/repository/comment_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/feed_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/notification_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/search_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'backend.dart';
@@ -65,6 +67,9 @@ class DataStack {
   FeedRepository get feed => container.read(feedRepositoryProvider);
   PostRepository get posts => container.read(postRepositoryProvider);
   CommentRepository get comments => container.read(commentRepositoryProvider);
+  SearchRepository get search => container.read(searchRepositoryProvider);
+  NotificationRepository get notifications =>
+      container.read(notificationRepositoryProvider);
 
   /// The ids in the cached feed window, in order.
   Future<List<String>> feedIds() async => [
