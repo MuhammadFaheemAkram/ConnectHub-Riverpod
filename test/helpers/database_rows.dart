@@ -1,4 +1,5 @@
 import 'package:connect_hub_riverpod/core/database/app_database.dart';
+import 'package:connect_hub_riverpod/core/database/daos/comments_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
 
 import 'backend.dart';
@@ -33,4 +34,26 @@ CachedPost cachedPost(
   ),
   author: userRow(authorId),
   bookmarkedAt: bookmarkedAt,
+);
+
+/// A comment on [postId] by [authorId], [minutesAgo] minutes before
+/// [testNow].
+CachedComment cachedComment(
+  String id, {
+  String postId = 'p1',
+  String authorId = 'u_grace',
+  int minutesAgo = 0,
+  int likeCount = 0,
+  bool isLiked = false,
+}) => (
+  comment: CommentRow(
+    id: id,
+    postId: postId,
+    authorId: authorId,
+    content: 'Comment $id',
+    createdAt: testNow.subtract(Duration(minutes: minutesAgo)),
+    likeCount: likeCount,
+    isLiked: isLiked,
+  ),
+  author: userRow(authorId),
 );

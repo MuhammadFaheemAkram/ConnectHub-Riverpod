@@ -1,5 +1,7 @@
+import 'package:connect_hub_riverpod/features/create_post/create_post_page.dart';
 import 'package:connect_hub_riverpod/features/feed/feed_page.dart';
 import 'package:connect_hub_riverpod/features/notifications/notifications_page.dart';
+import 'package:connect_hub_riverpod/features/post_detail/post_detail_page.dart';
 import 'package:connect_hub_riverpod/features/profile/profile_page.dart';
 import 'package:connect_hub_riverpod/features/search/search_page.dart';
 import 'package:connect_hub_riverpod/features/settings/settings_page.dart';
@@ -16,9 +18,8 @@ part 'app_routes.g.dart';
 //
 // The tree has two parts:
 // 1. the tab shell, one branch per tab;
-// 2. root-level screens, pushed *above* the shell. Phases 3 and 5 add the
-//    post (`/posts/:postId`), the composer (`/compose`) and other people's
-//    profiles (`/users/:userId`) here.
+// 2. root-level screens, pushed *above* the shell: a post, the composer,
+//    Settings (and, in Phase 5, other people's profiles).
 //
 // No sign-in gate: the demo user is always signed in (auth is out of scope).
 
@@ -125,6 +126,34 @@ class ProfileRoute extends GoRouteData with $ProfileRoute {
 // Declared at the top level, so they live in the *root* Navigator: pushing
 // one from a tab covers the tab bar, and Back returns to that tab with its
 // state intact.
+
+/// `/posts/:postId`: reachable from every tab (the feed now; search and
+/// profiles later), so one root-level route beats a copy per tab.
+@TypedGoRoute<PostDetailRoute>(path: '/posts/:postId')
+class PostDetailRoute extends GoRouteData with $PostDetailRoute {
+  const PostDetailRoute({required this.postId});
+
+  final String postId;
+
+  @override
+  Widget build(BuildContext context, GoRouterState state) =>
+      PostDetailPage(postId: postId);
+}
+
+/// `/compose`: a full-screen dialog (a close button instead of Back, and it
+/// slides up), the Material counterpart of an iOS sheet.
+@TypedGoRoute<CreatePostRoute>(path: '/compose')
+class CreatePostRoute extends GoRouteData with $CreatePostRoute {
+  const CreatePostRoute();
+
+  @override
+  Page<void> buildPage(BuildContext context, GoRouterState state) =>
+      MaterialPage<void>(
+        key: state.pageKey,
+        fullscreenDialog: true,
+        child: const CreatePostPage(),
+      );
+}
 
 /// `/settings`, opened from the Profile tab's gear.
 @TypedGoRoute<SettingsRoute>(path: '/settings')

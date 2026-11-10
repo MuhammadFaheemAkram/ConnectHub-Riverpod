@@ -1,11 +1,17 @@
 import 'package:clock/clock.dart';
+import 'package:connect_hub_riverpod/core/common/app_exception.dart';
 import 'package:connect_hub_riverpod/core/common/result.dart';
+import 'package:connect_hub_riverpod/core/database/daos/feed_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
 import 'package:connect_hub_riverpod/core/network/api/feed_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.dart';
+import 'package:connect_hub_riverpod/data/mapper/post_mappers.dart';
 import 'package:connect_hub_riverpod/data/repository/api_guard.dart';
+import 'package:connect_hub_riverpod/domain/model/post.dart';
 import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
 
-/// One post, liked or saved optimistically.
+/// One post: read from the cache, refreshed and created through the API, and
+/// liked or saved optimistically.
 ///
 /// The optimistic update lives here, not in a notifier, because it is a data
 /// concern: write drift first (every screen showing the post updates through
@@ -15,14 +21,52 @@ import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
 ///
 /// It holds state (the requests in flight), so its provider is `keepAlive`.
 class PostRepositoryImpl implements PostRepository {
-  PostRepositoryImpl(this._api, this._posts, this._clock);
+  PostRepositoryImpl(this._api, this._posts, this._feed, this._clock);
 
   final FeedApiService _api;
   final PostsDao _posts;
+  final FeedDao _feed;
   final Clock _clock;
 
   /// The requests in flight, as `like:<postId>` and `bookmark:<postId>`.
   final _inFlight = <String>{};
+
+  @override
+  Stream<Post?> watchPost(String postId) =>
+      _posts.watchPost(postId).map((cached) => cached?.toDomain());
+
+  @override
+  Future<Result<void>> refreshPost(String postId) async {
+    final result = await guardApiCall(() => _api.getPost(postId));
+    switch (result) {
+      case Ok(value: final post):
+        await _posts.upsertPosts([post.toCached()]);
+        return const Ok(null);
+      case Err(:final exception):
+        // The server no longer has it, so neither should the cache. The
+        // delete takes its comments, save and feed place with it.
+        if (exception is NotFoundException) await _posts.deletePost(postId);
+        return Err(exception);
+    }
+  }
+
+  /// Not optimistic: the post needs the server's id and time. The server's
+  /// copy then joins the feed window, on top, because it is the newest.
+  @override
+  Future<Result<void>> createPost({
+    required String content,
+    String? imageUrl,
+  }) async {
+    final request = CreatePostRequestDto(content: content, imageUrl: imageUrl);
+    final result = await guardApiCall(() => _api.createPost(request));
+    switch (result) {
+      case Ok(value: final post):
+        await _feed.addToFeed([post.toCached()]);
+        return const Ok(null);
+      case Err(:final exception):
+        return Err(exception);
+    }
+  }
 
   @override
   Future<Result<void>> setLiked(String postId, {required bool liked}) {

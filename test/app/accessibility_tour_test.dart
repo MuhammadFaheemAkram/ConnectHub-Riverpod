@@ -8,7 +8,9 @@ import 'package:material_ui/material_ui.dart';
 
 import '../helpers/app_harness.dart';
 import '../helpers/backend.dart';
+import '../helpers/fakes/fake_comment_repository.dart';
 import '../helpers/fakes/fake_feed_repository.dart';
+import '../helpers/fakes/fake_post_repository.dart';
 import '../helpers/fixtures.dart';
 
 // Every screen and state, in light and dark, with text at 200%: no layout
@@ -53,6 +55,9 @@ void main() {
 
       for (final (name, location) in [
         ('Feed', '/feed'),
+        ('Post Detail', '/posts/p1'),
+        ('Post Detail, no longer available', '/posts/p999'),
+        ('Create Post', '/compose'),
         ('Search', '/search'),
         ('Notifications', '/notifications'),
         ('Profile', '/profile'),
@@ -101,6 +106,64 @@ void main() {
           ),
         );
         expect(find.text('Retry'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Post Detail, with my comment and a liked one', (
+        tester,
+      ) async {
+        final posts = FakePostRepository(
+          cached: samplePost('p1', commentCount: 2, isLiked: true),
+        );
+        final comments = FakeCommentRepository(
+          cached: [
+            sampleComment('c1', isLiked: true, likeCount: 12),
+            sampleComment('c2', isMine: true),
+          ],
+        );
+        addTearDown(posts.dispose);
+        addTearDown(comments.dispose);
+        await open(
+          tester,
+          '/posts/p1',
+          overrides: [
+            ...realStack(),
+            postRepositoryProvider.overrideWithValue(posts),
+            commentRepositoryProvider.overrideWithValue(comments),
+          ],
+        );
+        expect(find.text('You'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Create Post, with errors', (tester) async {
+        await open(tester, '/compose');
+        await tester.enterText(
+          find.widgetWithText(TextField, "What's on your mind?"),
+          'a' * 300,
+        );
+        await tester.enterText(
+          find.widgetWithText(TextField, 'Image URL (optional)'),
+          'not a url',
+        );
+        await tester.pumpAndSettle();
+        expect(find.text('Enter a valid image URL.'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Create Post, "Discard post?"', (tester) async {
+        await open(tester, '/compose');
+        await tester.enterText(
+          find.widgetWithText(TextField, "What's on your mind?"),
+          'Draft',
+        );
+        await tester.pump();
+        await tester.tap(find.byTooltip('Close'));
+        await tester.pumpAndSettle();
+        expect(find.text('Discard post?'), findsOneWidget);
 
         await expectAccessible(tester);
       });

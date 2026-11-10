@@ -1,5 +1,8 @@
 import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
+import 'package:connect_hub_riverpod/core/common/id_generator.dart';
+import 'package:connect_hub_riverpod/core/network/api/comment_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_api_client.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_comment_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_feed_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/feed_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/asset_json_loader.dart';
@@ -31,9 +34,15 @@ AssetBundle assetBundle(Ref ref) => rootBundle;
 @Riverpod(keepAlive: true)
 NetworkSimulator networkSimulator(Ref ref) => NetworkSimulator();
 
+/// Ids for the posts and comments the server creates. Tests override it
+/// with a seeded `Random` for repeatable ids.
+@Riverpod(keepAlive: true)
+IdGenerator idGenerator(Ref ref) => IdGenerator();
+
 @Riverpod(keepAlive: true)
 FakeServer fakeServer(Ref ref) => FakeServer(
   SeedLoader(AssetJsonLoader(ref.watch(assetBundleProvider))),
+  ref.watch(idGeneratorProvider),
   ref.watch(clockProvider),
 );
 
@@ -46,6 +55,12 @@ FakeApiClient fakeApiClient(Ref ref) => FakeApiClient(
 /// Typed as the interface: what a repository depends on.
 @Riverpod(keepAlive: true)
 FeedApiService feedApiService(Ref ref) => FakeFeedApiService(
+  ref.watch(fakeApiClientProvider),
+  ref.watch(fakeServerProvider),
+);
+
+@Riverpod(keepAlive: true)
+CommentApiService commentApiService(Ref ref) => FakeCommentApiService(
   ref.watch(fakeApiClientProvider),
   ref.watch(fakeServerProvider),
 );

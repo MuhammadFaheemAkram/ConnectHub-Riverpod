@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:clock/clock.dart';
 import 'package:connect_hub_riverpod/app/retry_policy.dart';
 import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
+import 'package:connect_hub_riverpod/core/common/id_generator.dart';
 import 'package:connect_hub_riverpod/core/database/app_database.dart';
 import 'package:connect_hub_riverpod/core/network/asset_json_loader.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
@@ -17,11 +20,12 @@ import 'package:flutter_riverpod/misc.dart';
 /// The moment every test's fake server launches at.
 final testNow = DateTime.utc(2026, 10, 11, 12);
 
-/// The real in-memory fake server, seeded from the bundled JSON, with a
-/// fixed clock. Needs `TestWidgetsFlutterBinding.ensureInitialized()` for
-/// the asset bundle.
+/// The real in-memory fake server, seeded from the bundled JSON, with
+/// repeatable ids and a fixed clock. Needs
+/// `TestWidgetsFlutterBinding.ensureInitialized()` for the asset bundle.
 FakeServer newFakeServer({Clock? clock}) => FakeServer(
   SeedLoader(AssetJsonLoader(rootBundle)),
+  IdGenerator(random: Random(1)),
   clock ?? Clock.fixed(testNow),
 );
 
@@ -37,8 +41,8 @@ DatabaseConnection newTestConnection() => DatabaseConnection(
   closeStreamsSynchronously: true,
 );
 
-/// The app's real provider graph, made deterministic: a fixed clock, a
-/// network with no latency, an in-memory database. Everything else (the
+/// The app's real provider graph, made deterministic: a fixed clock,
+/// repeatable ids, a network with no latency, an in-memory database. Everything else (the
 /// fake server, the services, the repositories, the use cases) is the real
 /// thing.
 ///
@@ -54,6 +58,7 @@ List<Override> realStack({
   AppDatabase? database,
 }) => [
   clockProvider.overrideWithValue(clock ?? Clock.fixed(testNow)),
+  idGeneratorProvider.overrideWithValue(IdGenerator(random: Random(1))),
   networkSimulatorProvider.overrideWithValue(
     network ?? NetworkSimulator(latencyFactor: 0),
   ),

@@ -1,6 +1,9 @@
+import 'package:connect_hub_riverpod/core/database/app_database.steps.dart';
+import 'package:connect_hub_riverpod/core/database/daos/comments_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/feed_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
 import 'package:connect_hub_riverpod/core/database/tables/bookmarks_table.dart';
+import 'package:connect_hub_riverpod/core/database/tables/comments_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/feed_items_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/posts_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/users_table.dart';
@@ -18,8 +21,8 @@ part 'app_database.g.dart';
 /// the JSON packages: drift exports `Table`, `Column` and `JsonKey`, and
 /// those names would clash (conventions §11.1).
 @DriftDatabase(
-  tables: [Users, Posts, FeedItems, Bookmarks],
-  daos: [PostsDao, FeedDao],
+  tables: [Users, Posts, FeedItems, Bookmarks, Comments],
+  daos: [PostsDao, FeedDao, CommentsDao],
 )
 class AppDatabase extends _$AppDatabase {
   /// [connection] comes from `databaseConnectionProvider`: a file in the
@@ -31,11 +34,22 @@ class AppDatabase extends _$AppDatabase {
   /// ships a tested migration.
   ///
   /// 1. Phase 2: users, posts, feed_items, bookmarks.
+  /// 2. Phase 3: comments (with their likes).
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    // A fresh install creates the latest schema directly (`createAll`). An
+    // update walks one version at a time: `stepByStep` comes from the
+    // generated `app_database.steps.dart`, and each step only sees the
+    // tables as they were at that version (`schema`), so an old step keeps
+    // working however later versions change the tables.
+    onUpgrade: stepByStep(
+      from1To2: (m, schema) async {
+        await m.createTable(schema.comments);
+      },
+    ),
     // SQLite ships with foreign keys *off*, per connection. Without this
     // pragma, every REFERENCES and ON DELETE CASCADE would be ignored.
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

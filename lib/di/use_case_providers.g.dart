@@ -236,3 +236,383 @@ final class SavePostUseCaseProvider
 }
 
 String _$savePostUseCaseHash() => r'7d60b06dfb629fc6fe3d72e4645dbf144991eeac';
+
+@ProviderFor(watchPostUseCase)
+final watchPostUseCaseProvider = WatchPostUseCaseProvider._();
+
+final class WatchPostUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchPostUseCase,
+          WatchPostUseCase,
+          WatchPostUseCase
+        >
+    with $Provider<WatchPostUseCase> {
+  WatchPostUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchPostUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchPostUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchPostUseCase> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  WatchPostUseCase create(Ref ref) {
+    return watchPostUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchPostUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchPostUseCase>(value),
+    );
+  }
+}
+
+String _$watchPostUseCaseHash() => r'e93db004da01d192945eee8ed6a1e2944b136249';
+
+@ProviderFor(refreshPostUseCase)
+final refreshPostUseCaseProvider = RefreshPostUseCaseProvider._();
+
+final class RefreshPostUseCaseProvider
+    extends
+        $FunctionalProvider<
+          RefreshPostUseCase,
+          RefreshPostUseCase,
+          RefreshPostUseCase
+        >
+    with $Provider<RefreshPostUseCase> {
+  RefreshPostUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'refreshPostUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$refreshPostUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<RefreshPostUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RefreshPostUseCase create(Ref ref) {
+    return refreshPostUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RefreshPostUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RefreshPostUseCase>(value),
+    );
+  }
+}
+
+String _$refreshPostUseCaseHash() =>
+    r'32095e5d55ba6bb9d4dd30fb6a48c869b053d6b4';
+
+@ProviderFor(createPostUseCase)
+final createPostUseCaseProvider = CreatePostUseCaseProvider._();
+
+final class CreatePostUseCaseProvider
+    extends
+        $FunctionalProvider<
+          CreatePostUseCase,
+          CreatePostUseCase,
+          CreatePostUseCase
+        >
+    with $Provider<CreatePostUseCase> {
+  CreatePostUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'createPostUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$createPostUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<CreatePostUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CreatePostUseCase create(Ref ref) {
+    return createPostUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CreatePostUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CreatePostUseCase>(value),
+    );
+  }
+}
+
+String _$createPostUseCaseHash() => r'52bffd392f318bfde7367a194d774575dd5e663a';
+
+@ProviderFor(watchCommentsUseCase)
+final watchCommentsUseCaseProvider = WatchCommentsUseCaseProvider._();
+
+final class WatchCommentsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          WatchCommentsUseCase,
+          WatchCommentsUseCase,
+          WatchCommentsUseCase
+        >
+    with $Provider<WatchCommentsUseCase> {
+  WatchCommentsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'watchCommentsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$watchCommentsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<WatchCommentsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  WatchCommentsUseCase create(Ref ref) {
+    return watchCommentsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(WatchCommentsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<WatchCommentsUseCase>(value),
+    );
+  }
+}
+
+String _$watchCommentsUseCaseHash() =>
+    r'6fd0f489b6ea0d47425c52c2fb904aad855adb2d';
+
+@ProviderFor(refreshCommentsUseCase)
+final refreshCommentsUseCaseProvider = RefreshCommentsUseCaseProvider._();
+
+final class RefreshCommentsUseCaseProvider
+    extends
+        $FunctionalProvider<
+          RefreshCommentsUseCase,
+          RefreshCommentsUseCase,
+          RefreshCommentsUseCase
+        >
+    with $Provider<RefreshCommentsUseCase> {
+  RefreshCommentsUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'refreshCommentsUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$refreshCommentsUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<RefreshCommentsUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  RefreshCommentsUseCase create(Ref ref) {
+    return refreshCommentsUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(RefreshCommentsUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<RefreshCommentsUseCase>(value),
+    );
+  }
+}
+
+String _$refreshCommentsUseCaseHash() =>
+    r'b3bf186f4a90583eff8922a5c63543bbc17d4630';
+
+@ProviderFor(addCommentUseCase)
+final addCommentUseCaseProvider = AddCommentUseCaseProvider._();
+
+final class AddCommentUseCaseProvider
+    extends
+        $FunctionalProvider<
+          AddCommentUseCase,
+          AddCommentUseCase,
+          AddCommentUseCase
+        >
+    with $Provider<AddCommentUseCase> {
+  AddCommentUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'addCommentUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$addCommentUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<AddCommentUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  AddCommentUseCase create(Ref ref) {
+    return addCommentUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(AddCommentUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<AddCommentUseCase>(value),
+    );
+  }
+}
+
+String _$addCommentUseCaseHash() => r'e89fbead0105dee893d838b12e926a103f4d61d8';
+
+@ProviderFor(deleteCommentUseCase)
+final deleteCommentUseCaseProvider = DeleteCommentUseCaseProvider._();
+
+final class DeleteCommentUseCaseProvider
+    extends
+        $FunctionalProvider<
+          DeleteCommentUseCase,
+          DeleteCommentUseCase,
+          DeleteCommentUseCase
+        >
+    with $Provider<DeleteCommentUseCase> {
+  DeleteCommentUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'deleteCommentUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$deleteCommentUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeleteCommentUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DeleteCommentUseCase create(Ref ref) {
+    return deleteCommentUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeleteCommentUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeleteCommentUseCase>(value),
+    );
+  }
+}
+
+String _$deleteCommentUseCaseHash() =>
+    r'bf6918ba914b6c2cf4ff77b4def5bfa3eb0d4f99';
+
+@ProviderFor(likeCommentUseCase)
+final likeCommentUseCaseProvider = LikeCommentUseCaseProvider._();
+
+final class LikeCommentUseCaseProvider
+    extends
+        $FunctionalProvider<
+          LikeCommentUseCase,
+          LikeCommentUseCase,
+          LikeCommentUseCase
+        >
+    with $Provider<LikeCommentUseCase> {
+  LikeCommentUseCaseProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'likeCommentUseCaseProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$likeCommentUseCaseHash();
+
+  @$internal
+  @override
+  $ProviderElement<LikeCommentUseCase> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  LikeCommentUseCase create(Ref ref) {
+    return likeCommentUseCase(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LikeCommentUseCase value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LikeCommentUseCase>(value),
+    );
+  }
+}
+
+String _$likeCommentUseCaseHash() =>
+    r'7fdc498e6bd0f9600cbf2b6359393f6685fb1f47';

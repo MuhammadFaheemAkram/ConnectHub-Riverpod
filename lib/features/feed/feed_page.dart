@@ -1,5 +1,6 @@
 import 'package:connect_hub_riverpod/core/common/app_exception.dart';
 import 'package:connect_hub_riverpod/core/design_system/design_system.dart';
+import 'package:connect_hub_riverpod/core/navigation/app_routes.dart';
 import 'package:connect_hub_riverpod/features/feed/feed_controller.dart';
 import 'package:connect_hub_riverpod/features/feed/widgets/empty_feed.dart';
 import 'package:connect_hub_riverpod/features/feed/widgets/post_list.dart';
@@ -40,7 +41,7 @@ class FeedPage extends ConsumerWidget {
       appBar: AppBar(title: const Text('ConnectHub')),
       floatingActionButton: FloatingActionButton(
         tooltip: 'New post',
-        onPressed: () => _showComposerComingSoon(context),
+        onPressed: () => const CreatePostRoute().push<void>(context),
         child: const Icon(Icons.edit_outlined),
       ),
       // Data first: a feed with posts stays on screen whatever else is going
@@ -52,7 +53,7 @@ class FeedPage extends ConsumerWidget {
           RefreshIndicator(
             onRefresh: () => controller().refresh(),
             child: EmptyFeed(
-              onCreatePost: () => _showComposerComingSoon(context),
+              onCreatePost: () => const CreatePostRoute().push<void>(context),
             ),
           ),
         AsyncValue(value: final state?) => PostList(
@@ -62,6 +63,9 @@ class FeedPage extends ConsumerWidget {
           cardFor: (post) => PostCard(
             key: ValueKey(post.id),
             post: post,
+            onTap: () => PostDetailRoute(postId: post.id).push<void>(context),
+            onComment: () =>
+                PostDetailRoute(postId: post.id).push<void>(context),
             onLike: () => controller().toggleLike(post),
             onSave: () => controller().toggleSave(post),
           ),
@@ -79,14 +83,5 @@ class FeedPage extends ConsumerWidget {
         _ => const LoadingView(message: 'Loading posts…'),
       },
     );
-  }
-
-  /// Create Post arrives in Phase 3.
-  static void _showComposerComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context)
-      ..hideCurrentSnackBar()
-      ..showSnackBar(
-        const SnackBar(content: Text('Creating posts arrives in Phase 3.')),
-      );
   }
 }

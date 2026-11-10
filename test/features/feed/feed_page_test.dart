@@ -89,7 +89,7 @@ void main() {
     expect(find.text('Post p1'), findsOneWidget);
   });
 
-  testWidgets('empty: "No posts yet", and New post says it is coming', (
+  testWidgets('empty: "No posts yet", and New post opens the composer', (
     tester,
   ) async {
     await pumpFeed(tester, before: () => feed.refreshedWindow = []);
@@ -97,7 +97,7 @@ void main() {
     expect(find.text('No posts yet'), findsOneWidget);
 
     await tester.tapAndSettle(find.widgetWithText(FilledButton, 'New post'));
-    expect(find.text('Creating posts arrives in Phase 3.'), findsOneWidget);
+    expect(find.text("What's on your mind?"), findsOneWidget);
   });
 
   testWidgets('loaded: the posts, newest first, then the footer', (

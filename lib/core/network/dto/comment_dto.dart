@@ -3,7 +3,8 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'comment_dto.g.dart';
 
-/// A comment on a post, as the API (and the seed file) describes it.
+/// A comment on a post, as the API describes it to one viewer: [isLiked] is
+/// their own like. The seed file has the same shape, without the likes.
 @JsonSerializable(createToJson: false, checked: true)
 class CommentDto {
   const CommentDto({
@@ -12,6 +13,8 @@ class CommentDto {
     required this.author,
     required this.text,
     required this.createdAt,
+    this.likeCount = 0,
+    this.isLiked = false,
   });
 
   factory CommentDto.fromJson(Map<String, dynamic> json) =>
@@ -22,4 +25,6 @@ class CommentDto {
   final UserDto author;
   final String text;
   final DateTime createdAt;
+  final int likeCount;
+  final bool isLiked;
 }

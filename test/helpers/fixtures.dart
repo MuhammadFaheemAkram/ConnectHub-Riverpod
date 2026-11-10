@@ -1,7 +1,9 @@
+import 'package:connect_hub_riverpod/domain/model/comment.dart';
 import 'package:connect_hub_riverpod/domain/model/post.dart';
 import 'package:connect_hub_riverpod/domain/model/user.dart';
 
 const ada = User(id: 'u_ada', name: 'Ada Lovelace');
+const demoUser = User(id: 'u_demo', name: 'Demo User');
 
 /// A post by [ada], posted at [createdAt] (default: 11:00 UTC on the test
 /// day), with only what a test needs to tell it apart.
@@ -23,4 +25,29 @@ Post samplePost(
   commentCount: commentCount,
   isLiked: isLiked,
   isBookmarked: isBookmarked,
+);
+
+/// A comment on `p1`, by [ada] or (when [isMine]) by the demo user, posted
+/// [minutesAgo] minutes before noon UTC on the test day.
+Comment sampleComment(
+  String id, {
+  String postId = 'p1',
+  bool isMine = false,
+  int minutesAgo = 0,
+  int likeCount = 0,
+  bool isLiked = false,
+}) => Comment(
+  id: id,
+  postId: postId,
+  author: isMine ? demoUser : ada,
+  text: 'Comment $id',
+  createdAt: DateTime.utc(
+    2026,
+    10,
+    11,
+    12,
+  ).subtract(Duration(minutes: minutesAgo)),
+  likeCount: likeCount,
+  isLiked: isLiked,
+  isMine: isMine,
 );

@@ -8,7 +8,12 @@ part of 'app_routes.dart';
 // GoRouterGenerator
 // **************************************************************************
 
-List<RouteBase> get $appRoutes => [$mainShellRoute, $settingsRoute];
+List<RouteBase> get $appRoutes => [
+  $mainShellRoute,
+  $postDetailRoute,
+  $createPostRoute,
+  $settingsRoute,
+];
 
 RouteBase get $mainShellRoute => StatefulShellRouteData.$route(
   factory: $MainShellRouteExtension._fromState,
@@ -127,6 +132,63 @@ mixin $ProfileRoute on GoRouteData {
 
   @override
   String get location => GoRouteData.$location('/profile');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $postDetailRoute => GoRouteData.$route(
+  path: '/posts/:postId',
+  hasOverriddenOnExit: false,
+  factory: $PostDetailRoute._fromState,
+);
+
+mixin $PostDetailRoute on GoRouteData {
+  static PostDetailRoute _fromState(GoRouterState state) =>
+      PostDetailRoute(postId: state.pathParameters['postId']!);
+
+  PostDetailRoute get _self => this as PostDetailRoute;
+
+  @override
+  String get location =>
+      GoRouteData.$location('/posts/${Uri.encodeComponent(_self.postId)}');
+
+  @override
+  void go(BuildContext context) => context.go(location);
+
+  @override
+  Future<T?> push<T>(BuildContext context) => context.push<T>(location);
+
+  @override
+  void pushReplacement(BuildContext context) =>
+      context.pushReplacement(location);
+
+  @override
+  void replace(BuildContext context) => context.replace(location);
+}
+
+RouteBase get $createPostRoute => GoRouteData.$route(
+  path: '/compose',
+  hasOverriddenOnExit: false,
+  factory: $CreatePostRoute._fromState,
+);
+
+mixin $CreatePostRoute on GoRouteData {
+  static CreatePostRoute _fromState(GoRouterState state) =>
+      const CreatePostRoute();
+
+  @override
+  String get location => GoRouteData.$location('/compose');
 
   @override
   void go(BuildContext context) => context.go(location);

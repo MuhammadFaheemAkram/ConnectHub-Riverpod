@@ -18,7 +18,7 @@ import 'pump_app.dart';
 /// - [at] opens a deep link through the app's own router.
 /// - [settle]: wait for every animation to end. A screen that stays on a
 ///   spinner never settles (conventions §11.7): pass `false`, and the app is
-///   pumped for one frame instead.
+///   pumped through a route transition instead.
 ///
 /// Returns the [ProviderContainer] behind the app's `ProviderScope`, so a
 /// test can read the same providers the widgets watch. The scope, and every
@@ -45,7 +45,10 @@ Future<ProviderContainer> pumpConnectHub(
   if (settle) {
     await tester.pumpAndSettle();
   } else {
+    // A frame for the new location, then a second to let a route
+    // transition finish.
     await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
   }
   return container;
 }

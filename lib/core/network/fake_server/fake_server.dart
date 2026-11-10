@@ -1,5 +1,9 @@
 import 'package:clock/clock.dart';
 import 'package:connect_hub_riverpod/core/common/app_exception.dart';
+import 'package:connect_hub_riverpod/core/common/id_generator.dart';
+import 'package:connect_hub_riverpod/core/common/validators.dart';
+import 'package:connect_hub_riverpod/core/network/dto/comment_dto.dart';
+import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_page_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/user_dto.dart';
@@ -8,8 +12,8 @@ import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
 /// An in-memory stand-in for ConnectHub's backend.
 ///
 /// It plays the role a REST server would: it owns the data and its rules
-/// (profiles, posts, likes, bookmarks, and from later phases comments,
-/// search and notifications). The rest of the app reaches it **only**
+/// (profiles, posts, likes, bookmarks, comments and their likes, and from
+/// later phases search and notifications). The rest of the app reaches it **only**
 /// through the `…ApiService` interfaces, so a real HTTP client could replace
 /// the fake services without changing any caller.
 ///
@@ -22,9 +26,10 @@ import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
 /// demo user is always signed in), no chat. Transport concerns (latency,
 /// simulated failures) live in the fake API layer, not here.
 class FakeServer {
-  FakeServer(this._seeds, this._clock);
+  FakeServer(this._seeds, this._ids, this._clock);
 
   final SeedLoader _seeds;
+  final IdGenerator _ids;
   final Clock _clock;
 
   Future<void>? _seeding;
@@ -38,12 +43,23 @@ class FakeServer {
   /// Posts by id.
   final _posts = <String, _ServerPost>{};
 
-  /// How many comments each post has (by post id). Phase 3 replaces the
-  /// counts with the comments themselves.
-  final _commentCounts = <String, int>{};
+  /// Every comment, in the order they were added.
+  final _comments = <_ServerComment>[];
 
   /// How old the newest seed record is at launch (see [_seed]).
   static const newestSeedAge = Duration(minutes: 5);
+
+  /// Likes on the seed's comments, from people outside this fake world. The
+  /// seed JSON has none (ConnectHub-Flutter had no comment likes), so this
+  /// edition adds them here; any other comment starts at 0.
+  static const seedCommentLikes = {
+    'c1': 4,
+    'c2': 12,
+    'c3': 1,
+    'c5': 3,
+    'c7': 9,
+    'c12': 2,
+  };
 
   /// The user every request is made as: the demo user, always signed in.
   Future<String> signedInUserId() async {
@@ -117,6 +133,115 @@ class FakeServer {
     return _postDto(post, viewerId);
   }
 
+  /// One post as [viewerId] sees it. Throws [NotFoundException] for an
+  /// unknown id.
+  Future<PostDto> getPost(String viewerId, String postId) async {
+    await _ready();
+    return _postDto(_post(postId), viewerId);
+  }
+
+  /// Publishes a post by [viewerId] and returns it. It is the newest post,
+  /// so it heads the feed's first page.
+  ///
+  /// The server checks the same rules as the client and stores the trimmed
+  /// text. A request that breaks them fails with a [FormatException], which a
+  /// real API would answer as 400 Bad Request.
+  Future<PostDto> createPost(
+    String viewerId,
+    CreatePostRequestDto request,
+  ) async {
+    await _ready();
+    final content = request.content.trim();
+    final imageUrl = request.imageUrl?.trim() ?? '';
+    if (Validators.postContent(content) != null ||
+        Validators.imageUrl(imageUrl) != null) {
+      throw FormatException('Invalid post', request.content);
+    }
+    final post = _ServerPost(
+      id: _ids.next('p'),
+      authorId: viewerId,
+      content: content,
+      imageUrl: imageUrl.isEmpty ? null : imageUrl,
+      createdAt: _clock.now().toUtc(),
+      seedLikes: 0,
+    );
+    _posts[post.id] = post;
+    return _postDto(post, viewerId);
+  }
+
+  // ---------------------------------------------------------------------------
+  // Comments
+
+  /// The comments on [postId] as [viewerId] sees them, oldest first. Throws
+  /// [NotFoundException] for an unknown post.
+  Future<List<CommentDto>> getComments(String viewerId, String postId) async {
+    await _ready();
+    _post(postId);
+    final comments =
+        _comments.where((comment) => comment.postId == postId).toList()
+          ..sort(_ServerComment.oldestFirst);
+    return [for (final comment in comments) _commentDto(comment, viewerId)];
+  }
+
+  /// Adds a comment by [viewerId] to [postId] and returns it. The post's
+  /// `commentCount` goes up with it, because it is counted, not stored.
+  Future<CommentDto> addComment(
+    String viewerId,
+    String postId,
+    String text,
+  ) async {
+    await _ready();
+    final post = _post(postId);
+    final body = text.trim();
+    if (Validators.comment(body) != null) {
+      throw FormatException('Invalid comment', text);
+    }
+    final comment = _ServerComment(
+      id: _ids.next('c'),
+      postId: post.id,
+      authorId: viewerId,
+      text: body,
+      createdAt: _clock.now().toUtc(),
+      seedLikes: 0,
+    );
+    _comments.add(comment);
+    return _commentDto(comment, viewerId);
+  }
+
+  /// Deletes one of [viewerId]'s own comments.
+  ///
+  /// Someone else's comment answers [NotFoundException], exactly like a
+  /// missing one. Many APIs (GitHub, for one) answer 404 rather than 403
+  /// here, so a stranger can't even confirm that the comment exists.
+  Future<void> deleteComment(String viewerId, String commentId) async {
+    await _ready();
+    final index = _comments.indexWhere(
+      (comment) => comment.id == commentId && comment.authorId == viewerId,
+    );
+    if (index == -1) throw const NotFoundException();
+    _comments.removeAt(index);
+  }
+
+  /// Likes or unlikes a comment for [viewerId] and returns it. Idempotent,
+  /// like a post's like.
+  Future<CommentDto> setCommentLiked(
+    String viewerId,
+    String commentId, {
+    required bool liked,
+  }) async {
+    await _ready();
+    final comment = _comments.firstWhere(
+      (comment) => comment.id == commentId,
+      orElse: () => throw const NotFoundException(),
+    );
+    if (liked) {
+      comment.likedBy.add(viewerId);
+    } else {
+      comment.likedBy.remove(viewerId);
+    }
+    return _commentDto(comment, viewerId);
+  }
+
   // ---------------------------------------------------------------------------
   // Seeding
 
@@ -156,10 +281,15 @@ class FakeServer {
     // claims 18 comments on p1 and ships 3).
     for (final comment in comments) {
       _users.putIfAbsent(comment.author.id, () => _profile(comment.author));
-      _commentCounts.update(
-        comment.postId,
-        (count) => count + 1,
-        ifAbsent: () => 1,
+      _comments.add(
+        _ServerComment(
+          id: comment.id,
+          postId: comment.postId,
+          authorId: comment.author.id,
+          text: comment.text,
+          createdAt: comment.createdAt.add(shift),
+          seedLikes: seedCommentLikes[comment.id] ?? 0,
+        ),
       );
     }
   }
@@ -182,9 +312,19 @@ class FakeServer {
     imageUrl: post.imageUrl,
     createdAt: post.createdAt,
     likeCount: post.likeCount,
-    commentCount: _commentCounts[post.id] ?? 0,
+    commentCount: _comments.where((c) => c.postId == post.id).length,
     isLiked: post.likedBy.contains(viewerId),
     bookmarkedAt: post.bookmarks[viewerId],
+  );
+
+  CommentDto _commentDto(_ServerComment comment, String viewerId) => CommentDto(
+    id: comment.id,
+    postId: comment.postId,
+    author: _users[comment.authorId]!,
+    text: comment.text,
+    createdAt: comment.createdAt,
+    likeCount: comment.likeCount,
+    isLiked: comment.likedBy.contains(viewerId),
   );
 
   /// A public profile: the seed's demo user has an email, which never
@@ -232,6 +372,38 @@ final class _ServerPost {
   static int newestFirst(_ServerPost a, _ServerPost b) {
     final byTime = b.createdAt.compareTo(a.createdAt);
     return byTime != 0 ? byTime : b.id.compareTo(a.id);
+  }
+}
+
+/// A comment as the server stores it: its author by id, its likes per user.
+final class _ServerComment {
+  _ServerComment({
+    required this.id,
+    required this.postId,
+    required this.authorId,
+    required this.text,
+    required this.createdAt,
+    required this.seedLikes,
+  });
+
+  final String id;
+  final String postId;
+  final String authorId;
+  final String text;
+  final DateTime createdAt;
+
+  /// Likes from people outside this fake world ([FakeServer.seedCommentLikes]).
+  final int seedLikes;
+
+  /// Ids of the users who like the comment.
+  final likedBy = <String>{};
+
+  int get likeCount => seedLikes + likedBy.length;
+
+  /// Oldest first, ties broken by id: the order a thread is read in.
+  static int oldestFirst(_ServerComment a, _ServerComment b) {
+    final byTime = a.createdAt.compareTo(b.createdAt);
+    return byTime != 0 ? byTime : a.id.compareTo(b.id);
   }
 }
 

@@ -1,6 +1,9 @@
 import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
+import 'package:connect_hub_riverpod/core/common/session_providers.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_comment_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_feed_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/network_providers.dart';
+import 'package:connect_hub_riverpod/data/repository/comment_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/feed_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/post_repository_impl.dart';
 import 'package:connect_hub_riverpod/di/data_providers.dart';
@@ -26,13 +29,29 @@ void main() {
 
     expect(container.read(feedRepositoryProvider), isA<FeedRepositoryImpl>());
     expect(container.read(postRepositoryProvider), isA<PostRepositoryImpl>());
+    expect(
+      container.read(commentRepositoryProvider),
+      isA<CommentRepositoryImpl>(),
+    );
     expect(container.read(feedApiServiceProvider), isA<FakeFeedApiService>());
+    expect(
+      container.read(commentApiServiceProvider),
+      isA<FakeCommentApiService>(),
+    );
     for (final provider in <ProviderListenable<Object>>[
       watchFeedUseCaseProvider,
       refreshFeedUseCaseProvider,
       loadMoreFeedUseCaseProvider,
       likePostUseCaseProvider,
       savePostUseCaseProvider,
+      watchPostUseCaseProvider,
+      refreshPostUseCaseProvider,
+      createPostUseCaseProvider,
+      watchCommentsUseCaseProvider,
+      refreshCommentsUseCaseProvider,
+      addCommentUseCaseProvider,
+      deleteCommentUseCaseProvider,
+      likeCommentUseCaseProvider,
     ]) {
       expect(() => container.read(provider), returnsNormally);
     }
@@ -80,6 +99,34 @@ void main() {
     },
   );
 
+  test("the client's signed-in user is the server's demo user", () async {
+    final container = testContainer();
+
+    expect(
+      await container.read(fakeServerProvider).signedInUserId(),
+      container.read(signedInUserIdProvider),
+    );
+  });
+
+  test('a different signed-in user changes whose comments are mine', () async {
+    final container = testContainer(
+      overrides: [
+        ...realStack(),
+        signedInUserIdProvider.overrideWithValue('u_grace'),
+      ],
+    );
+    await container.read(feedRepositoryProvider).refresh();
+    final comments = container.read(commentRepositoryProvider);
+    await comments.refreshComments('p1');
+
+    final mine = [
+      for (final comment in await comments.watchComments('p1').first)
+        if (comment.isMine) comment.id,
+    ];
+    // c1 on p1 is Grace Hopper's.
+    expect(mine, contains('c1'));
+  });
+
   test('overrides belong to one container: another one is untouched', () {
     final fake = FakeFeedRepository();
     addTearDown(fake.dispose);
@@ -106,6 +153,9 @@ void main() {
         appDatabaseProvider,
         feedRepositoryProvider,
         postRepositoryProvider,
+        commentRepositoryProvider,
+        idGeneratorProvider,
+        signedInUserIdProvider,
       ];
       for (final provider in keptAlive) {
         container.read(provider);
@@ -118,6 +168,8 @@ void main() {
       expect(container.read(appDatabaseProvider.exists), isTrue);
       expect(container.read(feedRepositoryProvider.exists), isTrue);
       expect(container.read(postRepositoryProvider.exists), isTrue);
+      expect(container.read(commentRepositoryProvider.exists), isTrue);
+      expect(container.read(signedInUserIdProvider.exists), isTrue);
       expect(container.read(likePostUseCaseProvider.exists), isFalse);
     });
 

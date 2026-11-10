@@ -2,7 +2,9 @@ import 'dart:convert';
 
 import 'package:clock/clock.dart';
 import 'package:connect_hub_riverpod/core/common/app_exception.dart';
+import 'package:connect_hub_riverpod/core/common/id_generator.dart';
 import 'package:connect_hub_riverpod/core/network/asset_json_loader.dart';
+import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_dto.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
@@ -158,6 +160,7 @@ void main() {
             }),
           ),
         ),
+        IdGenerator(),
         Clock.fixed(testNow),
       );
 
@@ -249,6 +252,184 @@ void main() {
         expect(removed.bookmarkedAt, isNull);
       },
     );
+  });
+
+  group('one post', () {
+    test('comes as the viewer sees it', () async {
+      await server.setLiked('u_demo', 'p3', liked: true);
+
+      final post = await server.getPost('u_demo', 'p3');
+
+      expect(post.id, 'p3');
+      expect(post.isLiked, isTrue);
+      expect(post.commentCount, 2);
+    });
+
+    test('an unknown one is not found', () {
+      expect(
+        server.getPost('u_demo', 'p999'),
+        throwsA(isA<NotFoundException>()),
+      );
+    });
+  });
+
+  group('create post', () {
+    test(
+      'publishes it as the viewer, trimmed, at the top of the first page',
+      () async {
+        final created = await server.createPost(
+          'u_demo',
+          const CreatePostRequestDto(
+            content: '  Hello, ConnectHub!  ',
+            imageUrl: ' https://picsum.photos/600/400 ',
+          ),
+        );
+
+        expect(created.author.id, 'u_demo');
+        expect(created.content, 'Hello, ConnectHub!');
+        expect(created.imageUrl, 'https://picsum.photos/600/400');
+        expect(created.createdAt, testNow);
+        expect(created.likeCount, 0);
+        expect(created.commentCount, 0);
+        final firstPage = await server.getFeed('u_demo', limit: 6);
+        expect(firstPage.posts.first.id, created.id);
+      },
+    );
+
+    test('an empty image URL means no image', () async {
+      final created = await server.createPost(
+        'u_demo',
+        const CreatePostRequestDto(content: 'No picture', imageUrl: ''),
+      );
+
+      expect(created.imageUrl, isNull);
+    });
+
+    test('a request that breaks the rules is rejected (a 400)', () {
+      for (final request in [
+        const CreatePostRequestDto(content: '   '),
+        CreatePostRequestDto(content: 'a' * 281),
+        const CreatePostRequestDto(content: 'Hi', imageUrl: 'not a url'),
+      ]) {
+        expect(
+          server.createPost('u_demo', request),
+          throwsFormatException,
+          reason: request.content,
+        );
+      }
+    });
+  });
+
+  group('comments', () {
+    test('come oldest first, each with its author', () async {
+      final comments = await server.getComments('u_demo', 'p1');
+
+      expect([for (final c in comments) c.id], ['c1', 'c2', 'c3']);
+      expect(comments.first.author.name, 'Grace Hopper');
+    });
+
+    test('an unknown post has no comments to list', () {
+      expect(
+        server.getComments('u_demo', 'p999'),
+        throwsA(isA<NotFoundException>()),
+      );
+    });
+
+    test(
+      'adding one stores it trimmed, as the viewer, and counts it',
+      () async {
+        final comment = await server.addComment(
+          'u_demo',
+          'p4',
+          '  Great point!  ',
+        );
+
+        expect(comment.text, 'Great point!');
+        expect(comment.author.id, 'u_demo');
+        expect(comment.createdAt, testNow);
+        expect((await server.getPost('u_demo', 'p4')).commentCount, 1);
+        expect(
+          (await server.getComments('u_demo', 'p4')).single.id,
+          comment.id,
+        );
+      },
+    );
+
+    test('a blank or too long comment is rejected (a 400)', () {
+      expect(server.addComment('u_demo', 'p4', '  '), throwsFormatException);
+      expect(
+        server.addComment('u_demo', 'p4', 'a' * 501),
+        throwsFormatException,
+      );
+    });
+
+    test('only its author may delete it: anyone else gets a 404', () async {
+      final mine = await server.addComment('u_demo', 'p4', 'Mine');
+
+      expect(
+        server.deleteComment('u_other', mine.id),
+        throwsA(isA<NotFoundException>()),
+      );
+      // c1 is Grace Hopper's.
+      expect(
+        server.deleteComment('u_demo', 'c1'),
+        throwsA(isA<NotFoundException>()),
+      );
+
+      await server.deleteComment('u_demo', mine.id);
+      expect((await server.getPost('u_demo', 'p4')).commentCount, 0);
+    });
+  });
+
+  group('comment likes', () {
+    test("the seed's comments carry the table's likes; others start at "
+        '0', () async {
+      final comments = {
+        for (final comment in await server.getComments('u_demo', 'p1'))
+          comment.id: comment.likeCount,
+      };
+
+      expect(comments, {'c1': 4, 'c2': 12, 'c3': 1});
+      final added = await server.addComment('u_demo', 'p1', 'Hi');
+      expect(added.likeCount, 0);
+    });
+
+    test('liking adds one like, and liking again changes nothing', () async {
+      final liked = await server.setCommentLiked('u_demo', 'c1', liked: true);
+      final again = await server.setCommentLiked('u_demo', 'c1', liked: true);
+
+      expect(liked.isLiked, isTrue);
+      expect(liked.likeCount, 5);
+      expect(again.likeCount, 5);
+    });
+
+    test(
+      "are per user: others see the count, not the viewer's heart",
+      () async {
+        await server.setCommentLiked('u_demo', 'c1', liked: true);
+
+        final seenByOther = (await server.getComments('u_other', 'p1')).first;
+
+        expect(seenByOther.likeCount, 5);
+        expect(seenByOther.isLiked, isFalse);
+      },
+    );
+
+    test('unliking removes it; an unknown comment is not found', () async {
+      await server.setCommentLiked('u_demo', 'c1', liked: true);
+
+      final unliked = await server.setCommentLiked(
+        'u_demo',
+        'c1',
+        liked: false,
+      );
+
+      expect(unliked.likeCount, 4);
+      expect(
+        server.setCommentLiked('u_demo', 'c999', liked: true),
+        throwsA(isA<NotFoundException>()),
+      );
+    });
   });
 }
 

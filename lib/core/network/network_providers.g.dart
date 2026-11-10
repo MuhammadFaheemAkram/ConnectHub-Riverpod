@@ -110,6 +110,55 @@ final class NetworkSimulatorProvider
 
 String _$networkSimulatorHash() => r'9f19bae22a107d200dc1210460e63858a8711dea';
 
+/// Ids for the posts and comments the server creates. Tests override it
+/// with a seeded `Random` for repeatable ids.
+
+@ProviderFor(idGenerator)
+final idGeneratorProvider = IdGeneratorProvider._();
+
+/// Ids for the posts and comments the server creates. Tests override it
+/// with a seeded `Random` for repeatable ids.
+
+final class IdGeneratorProvider
+    extends $FunctionalProvider<IdGenerator, IdGenerator, IdGenerator>
+    with $Provider<IdGenerator> {
+  /// Ids for the posts and comments the server creates. Tests override it
+  /// with a seeded `Random` for repeatable ids.
+  IdGeneratorProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'idGeneratorProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$idGeneratorHash();
+
+  @$internal
+  @override
+  $ProviderElement<IdGenerator> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  IdGenerator create(Ref ref) {
+    return idGenerator(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(IdGenerator value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<IdGenerator>(value),
+    );
+  }
+}
+
+String _$idGeneratorHash() => r'bb966cf7718d55db97c350a71fc16f6b9658db70';
+
 @ProviderFor(fakeServer)
 final fakeServerProvider = FakeServerProvider._();
 
@@ -149,7 +198,7 @@ final class FakeServerProvider
   }
 }
 
-String _$fakeServerHash() => r'1d698d3d2e544d2c7c01efb24c1564d7f19cb0b1';
+String _$fakeServerHash() => r'244d6b6fb64be0074779bf1824467d5d632f5107';
 
 @ProviderFor(fakeApiClient)
 final fakeApiClientProvider = FakeApiClientProvider._();
@@ -237,3 +286,50 @@ final class FeedApiServiceProvider
 }
 
 String _$feedApiServiceHash() => r'601407c7caea6081d529ec2fd1682ff5b7d26af6';
+
+@ProviderFor(commentApiService)
+final commentApiServiceProvider = CommentApiServiceProvider._();
+
+final class CommentApiServiceProvider
+    extends
+        $FunctionalProvider<
+          CommentApiService,
+          CommentApiService,
+          CommentApiService
+        >
+    with $Provider<CommentApiService> {
+  CommentApiServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'commentApiServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$commentApiServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<CommentApiService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CommentApiService create(Ref ref) {
+    return commentApiService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CommentApiService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CommentApiService>(value),
+    );
+  }
+}
+
+String _$commentApiServiceHash() => r'8f9f496a92b61d0335689d1ac576d8752c53a5e7';

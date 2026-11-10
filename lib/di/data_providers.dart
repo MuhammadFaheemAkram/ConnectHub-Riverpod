@@ -1,8 +1,11 @@
 import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
+import 'package:connect_hub_riverpod/core/common/session_providers.dart';
 import 'package:connect_hub_riverpod/core/database/app_database.dart';
 import 'package:connect_hub_riverpod/core/network/network_providers.dart';
+import 'package:connect_hub_riverpod/data/repository/comment_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/feed_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/post_repository_impl.dart';
+import 'package:connect_hub_riverpod/domain/repository/comment_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/feed_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
 import 'package:drift/drift.dart' show QueryExecutor;
@@ -20,7 +23,7 @@ part 'data_providers.g.dart';
 // Everything here is `keepAlive`, because each object lives as long as the
 // app: one database connection (several would break drift's change
 // notifications), and repositories that hold state (the feed's cursor, the
-// requests in flight).
+// likes in flight).
 
 /// Where the database lives: `connect_hub_riverpod.sqlite` in the app's
 /// documents directory. Tests override this one provider with an in-memory
@@ -51,5 +54,17 @@ FeedRepository feedRepository(Ref ref) => FeedRepositoryImpl(
 PostRepository postRepository(Ref ref) => PostRepositoryImpl(
   ref.watch(feedApiServiceProvider),
   ref.watch(appDatabaseProvider).postsDao,
+  ref.watch(appDatabaseProvider).feedDao,
   ref.watch(clockProvider),
+);
+
+/// A repository depending on another (it fetches a post that isn't cached
+/// before caching its comments): one more `ref.watch`.
+@Riverpod(keepAlive: true)
+CommentRepository commentRepository(Ref ref) => CommentRepositoryImpl(
+  ref.watch(commentApiServiceProvider),
+  ref.watch(appDatabaseProvider).commentsDao,
+  ref.watch(appDatabaseProvider).postsDao,
+  ref.watch(postRepositoryProvider),
+  signedInUserId: ref.watch(signedInUserIdProvider),
 );

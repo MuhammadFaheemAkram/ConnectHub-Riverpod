@@ -1,5 +1,6 @@
 import 'package:connect_hub_riverpod/core/network/api/fake_api_client.dart';
 import 'package:connect_hub_riverpod/core/network/api/feed_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/dto/create_post_request_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_dto.dart';
 import 'package:connect_hub_riverpod/core/network/dto/post_page_dto.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
@@ -12,12 +13,25 @@ class FakeFeedApiService implements FeedApiService {
   final FakeServer _server;
 
   static const _readLatency = Duration(milliseconds: 700);
+  static const _createLatency = Duration(milliseconds: 600);
   static const _writeLatency = Duration(milliseconds: 350);
 
   @override
   Future<PostPageDto> getFeed({String? cursor, int limit = 6}) async {
     final userId = await _client.send(_readLatency);
     return _server.getFeed(userId, cursor: cursor, limit: limit);
+  }
+
+  @override
+  Future<PostDto> getPost(String postId) async {
+    final userId = await _client.send(_readLatency);
+    return _server.getPost(userId, postId);
+  }
+
+  @override
+  Future<PostDto> createPost(CreatePostRequestDto request) async {
+    final userId = await _client.send(_createLatency);
+    return _server.createPost(userId, request);
   }
 
   @override

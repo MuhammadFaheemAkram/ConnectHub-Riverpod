@@ -203,4 +203,59 @@ final class PostRepositoryProvider
   }
 }
 
-String _$postRepositoryHash() => r'2c957604b65d95b33c0c9552ef043bd582384a5b';
+String _$postRepositoryHash() => r'404532e655dfc9f76259de75d5c0c59098b50dd6';
+
+/// A repository depending on another (it fetches a post that isn't cached
+/// before caching its comments): one more `ref.watch`.
+
+@ProviderFor(commentRepository)
+final commentRepositoryProvider = CommentRepositoryProvider._();
+
+/// A repository depending on another (it fetches a post that isn't cached
+/// before caching its comments): one more `ref.watch`.
+
+final class CommentRepositoryProvider
+    extends
+        $FunctionalProvider<
+          CommentRepository,
+          CommentRepository,
+          CommentRepository
+        >
+    with $Provider<CommentRepository> {
+  /// A repository depending on another (it fetches a post that isn't cached
+  /// before caching its comments): one more `ref.watch`.
+  CommentRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'commentRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$commentRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CommentRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  CommentRepository create(Ref ref) {
+    return commentRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CommentRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CommentRepository>(value),
+    );
+  }
+}
+
+String _$commentRepositoryHash() => r'378d19229865579a04e1123b0530ee13493bd4a2';
