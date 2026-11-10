@@ -1,0 +1,44 @@
+name: Flutter CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+# A newer push to the same branch cancels the run in progress.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    name: Analyze & test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      # Installs exactly the Flutter version pinned in .fvmrc (3.47.6).
+      - uses: kuhnroyal/flutter-fvm-config-action/setup@v3
+
+      - name: Install packages
+        run: flutter pub get
+
+      # Generated files are committed; fail if they are stale (`git diff`) or
+      # if one was never committed (`git status`).
+      - name: Generated code is up to date
+        run: |
+          dart run build_runner build
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+
+      - name: Format
+        run: dart format --output=none --set-exit-if-changed .
+
+      # `dart analyze`, not `flutter analyze`: only `dart analyze` runs
+      # analyzer plugins, and riverpod_lint is one (see analysis_options.yaml).
+      # `--fatal-infos` matches `flutter analyze`, which fails on infos too.
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Test
+        run: flutter test
