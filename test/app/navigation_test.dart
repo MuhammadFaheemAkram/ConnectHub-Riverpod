@@ -40,7 +40,7 @@ void main() {
 
     await pumpConnectHub(tester);
 
-    final body = find.text('Your feed is on its way');
+    final body = find.textContaining('analytical engine scheduler');
     expect(MediaQuery.textScalerOf(tester.element(body)).scale(10), 20);
     for (final label in ['Feed', 'Search', 'Notifications', 'Profile']) {
       final scaler = MediaQuery.textScalerOf(tester.element(tab(label)));

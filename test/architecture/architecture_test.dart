@@ -42,6 +42,65 @@ void main() {
     }
   });
 
+  Iterable<File> under(String folder) =>
+      sources.where((file) => file.path.startsWith('lib/$folder/'));
+
+  test('the domain is plain Dart: no Flutter, Riverpod, data or '
+      'infrastructure', () {
+    final domain = under('domain');
+    expect(domain, isNotEmpty);
+    for (final forbidden in [
+      "'package:flutter/",
+      "'package:material_ui/",
+      "'package:riverpod",
+      "'package:flutter_riverpod/",
+      'connect_hub_riverpod/data/',
+      'connect_hub_riverpod/core/network/',
+      'connect_hub_riverpod/core/database/',
+      'connect_hub_riverpod/di/',
+    ]) {
+      expect(
+        filesContaining(forbidden, among: domain),
+        isEmpty,
+        reason: forbidden,
+      );
+    }
+  });
+
+  test('only core/network/ knows the fake server is there', () {
+    final outside = sources.where(
+      (file) => !file.path.startsWith('lib/core/network/'),
+    );
+    expect(
+      filesContaining('core/network/fake_server/', among: outside),
+      isEmpty,
+    );
+    expect(filesContaining('core/network/api/fake_', among: outside), isEmpty);
+  });
+
+  test('widgets never reach the data layer: features and the design system '
+      'go through providers', () {
+    final ui = [...under('features'), ...under('core/design_system')];
+    for (final forbidden in [
+      'connect_hub_riverpod/data/',
+      'connect_hub_riverpod/core/network/',
+      'connect_hub_riverpod/core/database/',
+    ]) {
+      expect(filesContaining(forbidden, among: ui), isEmpty, reason: forbidden);
+    }
+  });
+
+  test('drift files never import material_ui or the JSON packages (their '
+      'names clash, conventions §11.1)', () {
+    final database = under('core/database');
+    expect(database, isNotEmpty);
+    expect(filesContaining("'package:material_ui/", among: database), isEmpty);
+    expect(
+      filesContaining("'package:json_annotation/", among: database),
+      isEmpty,
+    );
+  });
+
   test('one ProviderScope, in main.dart; no container outside it', () {
     expect(filesContaining('ProviderScope('), ['lib/main.dart']);
     expect(filesContaining('ProviderContainer('), isEmpty);

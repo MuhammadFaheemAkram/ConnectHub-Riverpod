@@ -43,8 +43,8 @@ Built in **strict, reviewable phases**. Each phase ends with:
 | Phase | Scope | Status |
 |------:|-------|:------:|
 | 1 | Riverpod foundation: `ProviderScope`, the generator and riverpod_lint, the router as a provider, the design system, a 4-tab shell, CI | ✅ Done |
-| 2 | Feed: domain, fake server, drift v1, repositories and use cases as providers; `FeedController` (`AsyncNotifier`) | ⏳ Next |
-| 3 | Post detail and comments (a family by post id; comment likes), Create Post; drift v2 | ⬜ |
+| 2 | Feed: domain, fake server, drift v1, repositories and use cases as providers; `FeedController` (`AsyncNotifier`) | ✅ Done |
+| 3 | Post detail and comments (a family by post id; comment likes), Create Post; drift v2 | ⏳ Next |
 | 4 | Search (debounce through disposal) and Notifications (filter, mark read, the tab badge); drift v3 | ⬜ |
 | 5 | Profile (mine and others'; Saved with Undo) and Settings (appearance, dynamic color, developer tools) | ⬜ |
 | 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; final polish | ⬜ |
@@ -53,7 +53,7 @@ Built in **strict, reviewable phases**. Each phase ends with:
 
 ## ✨ Features (planned scope)
 
-- 📰 **Feed:** pull to refresh, infinite scroll, likes and saves (optimistic, with rollback), a New post button
+- 📰 **Feed** ✅: pull to refresh, infinite scroll, likes and saves (optimistic, with rollback), a New post button
 - 💬 **Post detail** with comments inline: add one, **like a comment**, delete your own
 - ✏️ **Create a post** with a 280-character counter and an optional image
 - 🔎 **Search** people and posts (debounced, live results), with recent searches
@@ -77,7 +77,11 @@ Built in **strict, reviewable phases**. Each phase ends with:
 | Lints | `riverpod_lint` (an analyzer plugin) | Catches Riverpod mistakes (a missing `ProviderScope`, `ref` misuse) as you type | 1 |
 | Navigation | `go_router` + `go_router_builder`, the router itself a provider | Typed routes; tab state kept by `StatefulShellRoute` | 1 |
 | Codegen | `build_runner` | Providers and routes are generated | 1 |
-| Models, database, images, prefs | `freezed`, `drift`, `cached_network_image`, `shared_preferences`, … | Added in the phase that first needs each | 2+ |
+| Models | `freezed` + `json_serializable` | Immutable state with `copyWith` and equality; DTOs from JSON | 2 |
+| Database | `drift` + `drift_flutter` | The offline cache: typed SQL, streams the UI watches, tested migrations | 2 |
+| Images | `cached_network_image` | Avatars and post images, cached; offline they fall back | 2 |
+| Time, formatting, locking | `clock`, `intl`, `synchronized` | A clock tests can fix; "5m", "1.3K"; refresh and load-more take turns | 2 |
+| Preferences, dynamic color, app info | `shared_preferences`, `dynamic_color`, `package_info_plus` | Settings | 5 |
 
 **Not used, on purpose:** `flutter_bloc`, `get_it`, `injectable`. Riverpod does both of their jobs here.
 
@@ -103,12 +107,22 @@ Use case → Repository  (domain contracts; data implementations)
 
 ConnectHub-Flutter for comparison: `View → Cubit/Bloc → UseCase → Repository`, wired with `get_it`.
 
-**Phase 1 provider graph:**
+**The provider graph after Phase 2** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
 
 ```
 ProviderScope (main.dart; automatic retry off)
-└── appRouterProvider   keepAlive   GoRouter: the tab shell, /settings, "not found"
-      ▲ watched by ConnectHubApp → MaterialApp.router
+├── appRouterProvider                keepAlive   GoRouter
+├── clockProvider                    keepAlive
+├── networkSimulatorProvider ─┐      keepAlive   latency, "Simulate network failure"
+├── fakeServerProvider ───────┤      keepAlive   the backend's data
+├── feedApiServiceProvider ◀──┘      keepAlive
+├── databaseConnectionProvider       keepAlive   a file (in tests: in memory)
+├── appDatabaseProvider              keepAlive   closed on dispose
+├── feedRepositoryProvider           keepAlive   cursor paging
+├── postRepositoryProvider           keepAlive   optimistic likes and saves
+├── …UseCaseProviders                auto-dispose
+├── feedPostsProvider                auto-dispose   drift stream
+└── feedControllerProvider           auto-dispose   AsyncNotifier<FeedState> ← FeedPage
 ```
 
 ---
@@ -120,15 +134,20 @@ lib/
 ├── main.dart                     # runApp(ProviderScope(retry: noAutomaticRetry, …))
 ├── app/                          # ConnectHubApp (MaterialApp.router), the retry policy
 ├── core/
-│   ├── design_system/            # theme, AppColors, tokens, large text, state views
-│   └── navigation/               # typed routes (+ .g.dart), the router provider (+ .g.dart)
+│   ├── common/                   # Result, AppException, relative time, counts, clockProvider
+│   ├── design_system/            # theme, AppColors, tokens, large text, PostCard, states
+│   ├── navigation/               # typed routes, the router provider
+│   ├── network/                  # network_providers, api/, dto/, fake_server/ (the only way in)
+│   └── database/                 # drift: app_database, tables/, daos/
+├── data/                         # mappers, repositories (offline-first, optimistic)
+├── domain/                       # models, repository contracts, use cases (plain Dart)
+├── di/                           # data_providers, use_case_providers
 └── features/
     ├── shell/                    # the 4-tab NavigationBar
-    └── feed/ search/ notifications/ profile/ settings/   # placeholder pages for now
-test/                             # mirrors lib/; helpers/ (pump helpers, app harness)
+    ├── feed/                     # FeedController (+ feedPostsProvider), FeedState, FeedPage, widgets/
+    └── search/ notifications/ profile/ settings/   # placeholders for now
+test/                             # mirrors lib/; helpers/ (realStack, containers, fakes, pump helpers)
 ```
-
-`domain/`, `data/`, `core/network/`, `core/database/` and `di/` arrive with the feed in Phase 2.
 
 ---
 
@@ -153,25 +172,39 @@ fvm flutter test
 
 ## 🧪 Testing
 
-- **Providers without widgets:** `ProviderContainer.test()` (disposed automatically when the test ends): the router provider is kept alive, disposed with its container, and new for every container.
-- **The retry decision:** a failing load with the app's policy is an `AsyncError` at once. With Riverpod's default retry, it is still loading.
-- **The app:** the tabs, Settings above the tabs, deep links, "Page not found", the theme following the device.
-- **The accessibility tour:** every screen, light and dark, at 200 % text: no overflow, 48 × 48 tap targets, labels, contrast.
-- **Architecture rules:** no in-SDK Material, no legacy providers, no service locator or Bloc, one `ProviderScope`.
+- **Notifiers without widgets:** `ProviderContainer.test()` with fake repositories as `overrides`, and every state recorded in order (`FeedController`: the cache then the refresh, loading → error → "Try again", load more, a failed like, a late answer after the Feed is gone).
+- **The provider graph:** it resolves; an override reaches everything built on it, in one container only; what is kept alive and what isn't.
+- **The data layer on the real graph:** the fake server, drift (in memory), the repositories (paging, optimistic writes, rollback, one request at a time).
+- **Pages and flows:** the Feed in every state with fake repositories; flows on the real stack (a like the server keeps or refuses, scrolling to the end, offline with and without a cache).
+- **The accessibility tour:** every screen and state, light and dark, at 200 % text.
+- **Architecture rules:** the domain is plain Dart; only `core/network/` knows the fake server; widgets never reach the data layer; no legacy providers.
 
-**61 tests** after Phase 1.
+**196 tests** after Phase 2.
 
 ---
 
 ## 🌐 Fake API and persistence
 
-Arrive in Phase 2: an in-memory `FakeServer` seeded from JSON (ConnectHub's, without chat), API services with simulated latency and failures, and a drift cache the screens render offline-first.
+- **The fake backend:**
+  - an in-memory `FakeServer`, seeded from `assets/json/` (ConnectHub-Flutter's seed, without chat);
+  - seed times shifted so the newest record is always five minutes old;
+  - the demo user `u_demo` is always signed in.
+- **The network:**
+  - every request crosses a `NetworkSimulator`: 350–700 ms of latency in the app (none in tests);
+  - a switch fails every request (Settings → Developer, in Phase 5).
+- **Offline-first:**
+  - screens render drift (SQLite) only; repositories refresh drift from the API;
+  - cached posts show at once and offline;
+  - likes and saves change drift first, then the server, and are rolled back if it refuses.
+
+---
 
 ---
 
 ## 📚 Docs
 
 - [Phase 1 summary](docs/PHASE_1_SUMMARY.md): the foundation, the Riverpod concepts, the provider graph
+- [Phase 2 summary](docs/PHASE_2_SUMMARY.md): the feed, providers as the DI, `AsyncNotifier`, effects, the Feed with Bloc and with Riverpod
 
 ---
 
