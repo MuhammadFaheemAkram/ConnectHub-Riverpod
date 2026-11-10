@@ -1,3 +1,4 @@
+import 'package:connect_hub_riverpod/core/common/session_providers.dart';
 import 'package:connect_hub_riverpod/features/create_post/create_post_page.dart';
 import 'package:connect_hub_riverpod/features/feed/feed_page.dart';
 import 'package:connect_hub_riverpod/features/notifications/notifications_page.dart';
@@ -7,6 +8,7 @@ import 'package:connect_hub_riverpod/features/profile/user_profile_page.dart';
 import 'package:connect_hub_riverpod/features/search/search_page.dart';
 import 'package:connect_hub_riverpod/features/settings/settings_page.dart';
 import 'package:connect_hub_riverpod/features/shell/main_shell.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -141,18 +143,46 @@ class PostDetailRoute extends GoRouteData with $PostDetailRoute {
       PostDetailPage(postId: postId);
 }
 
-/// `/users/:userId`: someone's profile, from search results and
-/// notifications (Phase 5 fills it in, and sends my own id to the tab).
+/// `/users/:userId`: someone else's profile. Open it with [openProfile].
 @TypedGoRoute<UserProfileRoute>(path: '/users/:userId')
 class UserProfileRoute extends GoRouteData with $UserProfileRoute {
   const UserProfileRoute({required this.userId});
 
   final String userId;
 
+  /// My own id goes to the Profile tab (a deep link, say): one "me" screen,
+  /// the one with Saved and the Settings gear.
+  @override
+  String? redirect(BuildContext context, GoRouterState state) =>
+      _isMe(context, userId) ? const ProfileRoute().location : null;
+
   @override
   Widget build(BuildContext context, GoRouterState state) =>
       UserProfilePage(userId: userId);
 }
+
+/// Opens [userId]'s profile from any screen.
+///
+/// Someone else's profile is pushed above the tabs. Mine is the Profile tab,
+/// so the app switches to it (`go`) instead: pushing a location that
+/// redirects into a tab of the shell would put a second shell on the stack,
+/// which the Navigator rejects (conventions §11.30).
+void openProfile(BuildContext context, String userId) {
+  if (_isMe(context, userId)) {
+    const ProfileRoute().go(context);
+  } else {
+    UserProfileRoute(userId: userId).push<void>(context);
+  }
+}
+
+/// Whether [userId] is the signed-in user. A route is no widget, so it
+/// reaches the provider through the `ProviderScope` above the router.
+bool _isMe(BuildContext context, String userId) =>
+    ProviderScope.containerOf(
+      context,
+      listen: false,
+    ).read(signedInUserIdProvider) ==
+    userId;
 
 /// `/compose`: a full-screen dialog (a close button instead of Back, and it
 /// slides up), the Material counterpart of an iOS sheet.

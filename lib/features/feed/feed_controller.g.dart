@@ -126,7 +126,7 @@ final class FeedControllerProvider
   FeedController create() => FeedController();
 }
 
-String _$feedControllerHash() => r'48b2327bbb2b6bc5600554f78cb9ea12f3a13275';
+String _$feedControllerHash() => r'a6f197a76df3d3662609fb6f1c6dcf9e1f051362';
 
 /// Drives the Feed: it shows the window cached in drift at once, refreshes
 /// it from the server, pages it in, and likes and saves posts.

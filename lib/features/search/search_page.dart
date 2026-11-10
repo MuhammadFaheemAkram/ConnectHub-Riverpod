@@ -145,8 +145,8 @@ class _Results extends ConsumerWidget {
     }
     return SearchResultList(
       results: shown,
-      onOpenPerson: (user) =>
-          open(() => UserProfileRoute(userId: user.id).push<void>(context)),
+      onOpenPerson: (user) => open(() => openProfile(context, user.id)),
+      onOpenAuthor: (post) => openProfile(context, post.author.id),
       onOpenPost: (post) =>
           open(() => PostDetailRoute(postId: post.id).push<void>(context)),
       onLike: controller.toggleLike,

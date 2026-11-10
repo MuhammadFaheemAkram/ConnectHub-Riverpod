@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connect_hub_riverpod/core/common/first_value.dart';
 import 'package:connect_hub_riverpod/core/common/result.dart';
+import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/di/use_case_providers.dart';
 import 'package:connect_hub_riverpod/domain/model/app_notification.dart';
 import 'package:connect_hub_riverpod/features/notifications/notifications_state.dart';
@@ -37,6 +38,7 @@ class NotificationsController extends _$NotificationsController {
 
   @override
   Future<NotificationsState> build() async {
+    ref.watch(cacheEpochProvider);
     ref.listen(cachedNotificationsProvider, (_, next) {
       if (next case AsyncData(value: final notifications)) {
         _update((state) => state.copyWith(notifications: notifications));
@@ -100,8 +102,11 @@ class NotificationsController extends _$NotificationsController {
   Future<List<AppNotification>> _readCache() =>
       ref.read(watchNotificationsUseCaseProvider)().firstValue;
 
+  /// Changes the state, if it has a value, and not while rebuilding (after
+  /// Clear cache): the emptied cache must not replace what's on screen with
+  /// "nothing" before the reload.
   void _update(NotificationsState Function(NotificationsState state) change) {
     final current = state.value;
-    if (current != null) state = AsyncData(change(current));
+    if (current != null && !state.isLoading) state = AsyncData(change(current));
   }
 }

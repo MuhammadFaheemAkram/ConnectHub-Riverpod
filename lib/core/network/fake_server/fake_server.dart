@@ -175,6 +175,44 @@ class FakeServer {
   }
 
   // ---------------------------------------------------------------------------
+  // Saved posts (bookmarks)
+
+  /// The posts [viewerId] has saved, the most recently saved first (ties
+  /// broken by id, like the feed).
+  Future<List<PostDto>> getBookmarks(String viewerId) async {
+    await _ready();
+    DateTime savedAt(_ServerPost post) => post.bookmarks[viewerId]!;
+    final saved =
+        [
+          for (final post in _posts.values)
+            if (post.bookmarks.containsKey(viewerId)) post,
+        ]..sort((a, b) {
+          final byTime = savedAt(b).compareTo(savedAt(a));
+          return byTime != 0 ? byTime : b.id.compareTo(a.id);
+        });
+    return [for (final post in saved) _postDto(post, viewerId)];
+  }
+
+  // ---------------------------------------------------------------------------
+  // Users
+
+  /// A public profile. Throws [NotFoundException] for an unknown id.
+  Future<UserDto> getUser(String userId) async {
+    await _ready();
+    return _users[userId] ?? (throw const NotFoundException());
+  }
+
+  /// Every post by [userId], newest first, as [viewerId] sees them. Throws
+  /// [NotFoundException] for an unknown user.
+  Future<List<PostDto>> getUserPosts(String viewerId, String userId) async {
+    await getUser(userId);
+    return [
+      for (final post in _postsNewestFirst())
+        if (post.authorId == userId) _postDto(post, viewerId),
+    ];
+  }
+
+  // ---------------------------------------------------------------------------
   // Comments
 
   /// The comments on [postId] as [viewerId] sees them, oldest first. Throws

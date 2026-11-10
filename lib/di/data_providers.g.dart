@@ -353,3 +353,372 @@ final class NotificationRepositoryProvider
 
 String _$notificationRepositoryHash() =>
     r'c44622116979649b2bf426ba8042cf749f5867bb';
+
+/// Where the settings are stored. There is no default: `main` creates
+/// `SharedPreferencesWithCache` *before* `runApp` and overrides this
+/// provider with it, so the settings are readable synchronously from the
+/// very first frame (no theme flash, Rule 9). Tests override it with an
+/// in-memory store.
+
+@ProviderFor(preferencesStore)
+final preferencesStoreProvider = PreferencesStoreProvider._();
+
+/// Where the settings are stored. There is no default: `main` creates
+/// `SharedPreferencesWithCache` *before* `runApp` and overrides this
+/// provider with it, so the settings are readable synchronously from the
+/// very first frame (no theme flash, Rule 9). Tests override it with an
+/// in-memory store.
+
+final class PreferencesStoreProvider
+    extends
+        $FunctionalProvider<
+          PreferencesStore,
+          PreferencesStore,
+          PreferencesStore
+        >
+    with $Provider<PreferencesStore> {
+  /// Where the settings are stored. There is no default: `main` creates
+  /// `SharedPreferencesWithCache` *before* `runApp` and overrides this
+  /// provider with it, so the settings are readable synchronously from the
+  /// very first frame (no theme flash, Rule 9). Tests override it with an
+  /// in-memory store.
+  PreferencesStoreProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'preferencesStoreProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$preferencesStoreHash();
+
+  @$internal
+  @override
+  $ProviderElement<PreferencesStore> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  PreferencesStore create(Ref ref) {
+    return preferencesStore(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(PreferencesStore value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<PreferencesStore>(value),
+    );
+  }
+}
+
+String _$preferencesStoreHash() => r'96d13ac62af7b75eabc22c394cc1ce937aff09b3';
+
+@ProviderFor(settingsRepository)
+final settingsRepositoryProvider = SettingsRepositoryProvider._();
+
+final class SettingsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SettingsRepository,
+          SettingsRepository,
+          SettingsRepository
+        >
+    with $Provider<SettingsRepository> {
+  SettingsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'settingsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$settingsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SettingsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SettingsRepository create(Ref ref) {
+    return settingsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SettingsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SettingsRepository>(value),
+    );
+  }
+}
+
+String _$settingsRepositoryHash() =>
+    r'a8f0790c226f4c006e1cb3f02c88452cadcb63d3';
+
+@ProviderFor(profileRepository)
+final profileRepositoryProvider = ProfileRepositoryProvider._();
+
+final class ProfileRepositoryProvider
+    extends
+        $FunctionalProvider<
+          ProfileRepository,
+          ProfileRepository,
+          ProfileRepository
+        >
+    with $Provider<ProfileRepository> {
+  ProfileRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'profileRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$profileRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<ProfileRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  ProfileRepository create(Ref ref) {
+    return profileRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(ProfileRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<ProfileRepository>(value),
+    );
+  }
+}
+
+String _$profileRepositoryHash() => r'bf0308cd9edcb435af61133ff6113e6da7b5939d';
+
+@ProviderFor(savedPostsRepository)
+final savedPostsRepositoryProvider = SavedPostsRepositoryProvider._();
+
+final class SavedPostsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          SavedPostsRepository,
+          SavedPostsRepository,
+          SavedPostsRepository
+        >
+    with $Provider<SavedPostsRepository> {
+  SavedPostsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'savedPostsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$savedPostsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<SavedPostsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  SavedPostsRepository create(Ref ref) {
+    return savedPostsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(SavedPostsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<SavedPostsRepository>(value),
+    );
+  }
+}
+
+String _$savedPostsRepositoryHash() =>
+    r'115abac860eead51c5e96970f03d06389d5c8e93';
+
+@ProviderFor(cacheRepository)
+final cacheRepositoryProvider = CacheRepositoryProvider._();
+
+final class CacheRepositoryProvider
+    extends
+        $FunctionalProvider<CacheRepository, CacheRepository, CacheRepository>
+    with $Provider<CacheRepository> {
+  CacheRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cacheRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cacheRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<CacheRepository> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  CacheRepository create(Ref ref) {
+    return cacheRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(CacheRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<CacheRepository>(value),
+    );
+  }
+}
+
+String _$cacheRepositoryHash() => r'62f3bbe97819acaf9d320a016b694ecc6d877ce6';
+
+@ProviderFor(demoToolsRepository)
+final demoToolsRepositoryProvider = DemoToolsRepositoryProvider._();
+
+final class DemoToolsRepositoryProvider
+    extends
+        $FunctionalProvider<
+          DemoToolsRepository,
+          DemoToolsRepository,
+          DemoToolsRepository
+        >
+    with $Provider<DemoToolsRepository> {
+  DemoToolsRepositoryProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'demoToolsRepositoryProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$demoToolsRepositoryHash();
+
+  @$internal
+  @override
+  $ProviderElement<DemoToolsRepository> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DemoToolsRepository create(Ref ref) {
+    return demoToolsRepository(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DemoToolsRepository value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DemoToolsRepository>(value),
+    );
+  }
+}
+
+String _$demoToolsRepositoryHash() =>
+    r'464706bbf98884221e4715aed806e591aff5481d';
+
+/// Bumped by Clear cache. The screens that show the server's data *watch*
+/// it, so clearing the cache rebuilds them, and they load again instead of
+/// showing their emptied cache as "nothing here". ConnectHub-Flutter sent a
+/// "cache cleared" stream that each Cubit subscribed to; here it's one
+/// `ref.watch` per screen.
+
+@ProviderFor(CacheEpoch)
+final cacheEpochProvider = CacheEpochProvider._();
+
+/// Bumped by Clear cache. The screens that show the server's data *watch*
+/// it, so clearing the cache rebuilds them, and they load again instead of
+/// showing their emptied cache as "nothing here". ConnectHub-Flutter sent a
+/// "cache cleared" stream that each Cubit subscribed to; here it's one
+/// `ref.watch` per screen.
+final class CacheEpochProvider extends $NotifierProvider<CacheEpoch, int> {
+  /// Bumped by Clear cache. The screens that show the server's data *watch*
+  /// it, so clearing the cache rebuilds them, and they load again instead of
+  /// showing their emptied cache as "nothing here". ConnectHub-Flutter sent a
+  /// "cache cleared" stream that each Cubit subscribed to; here it's one
+  /// `ref.watch` per screen.
+  CacheEpochProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'cacheEpochProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$cacheEpochHash();
+
+  @$internal
+  @override
+  CacheEpoch create() => CacheEpoch();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$cacheEpochHash() => r'fd1c263ecfe966bb726116d02d3d89402c2f0ca8';
+
+/// Bumped by Clear cache. The screens that show the server's data *watch*
+/// it, so clearing the cache rebuilds them, and they load again instead of
+/// showing their emptied cache as "nothing here". ConnectHub-Flutter sent a
+/// "cache cleared" stream that each Cubit subscribed to; here it's one
+/// `ref.watch` per screen.
+
+abstract class _$CacheEpoch extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}

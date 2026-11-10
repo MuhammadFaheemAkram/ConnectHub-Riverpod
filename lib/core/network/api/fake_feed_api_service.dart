@@ -48,4 +48,10 @@ class FakeFeedApiService implements FeedApiService {
     final userId = await _client.send(_writeLatency);
     return _server.setBookmarked(userId, postId, bookmarked: bookmarked);
   }
+
+  @override
+  Future<List<PostDto>> getBookmarks() async {
+    final userId = await _client.send(_readLatency);
+    return _server.getBookmarks(userId);
+  }
 }

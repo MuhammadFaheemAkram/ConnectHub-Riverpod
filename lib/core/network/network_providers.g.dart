@@ -427,3 +427,92 @@ final class NotificationApiServiceProvider
 
 String _$notificationApiServiceHash() =>
     r'1ed03016f8bb60892d879892df361852e34660e0';
+
+@ProviderFor(userApiService)
+final userApiServiceProvider = UserApiServiceProvider._();
+
+final class UserApiServiceProvider
+    extends $FunctionalProvider<UserApiService, UserApiService, UserApiService>
+    with $Provider<UserApiService> {
+  UserApiServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'userApiServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$userApiServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<UserApiService> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  UserApiService create(Ref ref) {
+    return userApiService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(UserApiService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<UserApiService>(value),
+    );
+  }
+}
+
+String _$userApiServiceHash() => r'a91ee95c9298fdf69ee5971a48f3a6dff445b001';
+
+@ProviderFor(developerToolsService)
+final developerToolsServiceProvider = DeveloperToolsServiceProvider._();
+
+final class DeveloperToolsServiceProvider
+    extends
+        $FunctionalProvider<
+          DeveloperToolsService,
+          DeveloperToolsService,
+          DeveloperToolsService
+        >
+    with $Provider<DeveloperToolsService> {
+  DeveloperToolsServiceProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'developerToolsServiceProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$developerToolsServiceHash();
+
+  @$internal
+  @override
+  $ProviderElement<DeveloperToolsService> $createElement(
+    $ProviderPointer pointer,
+  ) => $ProviderElement(pointer);
+
+  @override
+  DeveloperToolsService create(Ref ref) {
+    return developerToolsService(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DeveloperToolsService value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DeveloperToolsService>(value),
+    );
+  }
+}
+
+String _$developerToolsServiceHash() =>
+    r'16ebb10b6ad207089449e12ff2937b2d5a159186';

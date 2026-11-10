@@ -10,12 +10,16 @@ import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/network_simulator.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/seed_loader.dart';
 import 'package:connect_hub_riverpod/core/network/network_providers.dart';
+import 'package:connect_hub_riverpod/core/platform/platform_providers.dart';
+import 'package:connect_hub_riverpod/core/storage/preferences_store.dart';
 import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart';
+
+import 'fakes/memory_preferences_store.dart';
 
 /// The moment every test's fake server launches at.
 final testNow = DateTime.utc(2026, 10, 11, 12);
@@ -42,7 +46,9 @@ DatabaseConnection newTestConnection() => DatabaseConnection(
 );
 
 /// The app's real provider graph, made deterministic: a fixed clock,
-/// repeatable ids, a network with no latency, an in-memory database. Everything else (the
+/// repeatable ids, a network with no latency, an in-memory database,
+/// in-memory preferences ([preferences], empty by default), no wallpaper
+/// colors and a fixed app version. Everything else (the
 /// fake server, the services, the repositories, the use cases) is the real
 /// thing.
 ///
@@ -56,7 +62,14 @@ List<Override> realStack({
   Clock? clock,
   NetworkSimulator? network,
   AppDatabase? database,
+  PreferencesStore? preferences,
+  PlatformColorSchemes? wallpaperColors,
 }) => [
+  preferencesStoreProvider.overrideWithValue(
+    preferences ?? MemoryPreferencesStore(),
+  ),
+  platformColorSchemesProvider.overrideWith((ref) async => wallpaperColors),
+  appVersionProvider.overrideWith((ref) async => '1.0.0 (1)'),
   clockProvider.overrideWithValue(clock ?? Clock.fixed(testNow)),
   idGeneratorProvider.overrideWithValue(IdGenerator(random: Random(1))),
   networkSimulatorProvider.overrideWithValue(

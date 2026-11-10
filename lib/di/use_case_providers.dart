@@ -1,8 +1,11 @@
 import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/domain/usecase/add_comment_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/clear_cache_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/clear_recent_searches_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/create_post_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/delete_comment_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/get_network_failure_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/get_settings_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/like_comment_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/like_post_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/load_more_feed_use_case.dart';
@@ -12,17 +15,25 @@ import 'package:connect_hub_riverpod/domain/usecase/refresh_comments_use_case.da
 import 'package:connect_hub_riverpod/domain/usecase/refresh_feed_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/refresh_notifications_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/refresh_post_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/refresh_saved_posts_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/refresh_user_posts_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/refresh_user_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/save_post_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/save_recent_search_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/search_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/set_network_failure_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/update_settings_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_comments_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_feed_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_notifications_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_post_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_recent_searches_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/watch_saved_posts_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_search_people_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_search_posts_use_case.dart';
 import 'package:connect_hub_riverpod/domain/usecase/watch_unread_notification_count_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/watch_user_posts_use_case.dart';
+import 'package:connect_hub_riverpod/domain/usecase/watch_user_use_case.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'use_case_providers.g.dart';
@@ -133,3 +144,52 @@ MarkNotificationReadUseCase markNotificationReadUseCase(Ref ref) =>
 @riverpod
 MarkAllNotificationsReadUseCase markAllNotificationsReadUseCase(Ref ref) =>
     MarkAllNotificationsReadUseCase(ref.watch(notificationRepositoryProvider));
+
+@riverpod
+WatchUserUseCase watchUserUseCase(Ref ref) =>
+    WatchUserUseCase(ref.watch(profileRepositoryProvider));
+
+@riverpod
+RefreshUserUseCase refreshUserUseCase(Ref ref) =>
+    RefreshUserUseCase(ref.watch(profileRepositoryProvider));
+
+@riverpod
+WatchUserPostsUseCase watchUserPostsUseCase(Ref ref) =>
+    WatchUserPostsUseCase(ref.watch(profileRepositoryProvider));
+
+@riverpod
+RefreshUserPostsUseCase refreshUserPostsUseCase(Ref ref) =>
+    RefreshUserPostsUseCase(ref.watch(profileRepositoryProvider));
+
+@riverpod
+WatchSavedPostsUseCase watchSavedPostsUseCase(Ref ref) =>
+    WatchSavedPostsUseCase(ref.watch(savedPostsRepositoryProvider));
+
+@riverpod
+RefreshSavedPostsUseCase refreshSavedPostsUseCase(Ref ref) =>
+    RefreshSavedPostsUseCase(ref.watch(savedPostsRepositoryProvider));
+
+@riverpod
+ClearCacheUseCase clearCacheUseCase(Ref ref) =>
+    ClearCacheUseCase(ref.watch(cacheRepositoryProvider));
+
+@riverpod
+GetNetworkFailureUseCase getNetworkFailureUseCase(Ref ref) =>
+    GetNetworkFailureUseCase(ref.watch(demoToolsRepositoryProvider));
+
+@riverpod
+SetNetworkFailureUseCase setNetworkFailureUseCase(Ref ref) =>
+    SetNetworkFailureUseCase(ref.watch(demoToolsRepositoryProvider));
+
+// The two settings use cases are `keepAlive`, unlike the rest: the
+// kept-alive `SettingsController` reads them, and a `keepAlive` provider may
+// only use providers that live as long (riverpod_lint's
+// `only_use_keep_alive_inside_keep_alive` caught it).
+
+@Riverpod(keepAlive: true)
+GetSettingsUseCase getSettingsUseCase(Ref ref) =>
+    GetSettingsUseCase(ref.watch(settingsRepositoryProvider));
+
+@Riverpod(keepAlive: true)
+UpdateSettingsUseCase updateSettingsUseCase(Ref ref) =>
+    UpdateSettingsUseCase(ref.watch(settingsRepositoryProvider));

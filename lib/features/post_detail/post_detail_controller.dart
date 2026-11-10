@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:connect_hub_riverpod/core/common/app_exception.dart';
 import 'package:connect_hub_riverpod/core/common/first_value.dart';
 import 'package:connect_hub_riverpod/core/common/result.dart';
+import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/di/use_case_providers.dart';
 import 'package:connect_hub_riverpod/domain/model/comment.dart';
 import 'package:connect_hub_riverpod/domain/model/post.dart';
@@ -51,6 +52,7 @@ class PostDetailController extends _$PostDetailController {
     // Live updates, without re-running this build (see FeedController). A
     // like on the feed, a new comment: both arrive through drift.
     ref
+      ..watch(cacheEpochProvider)
       ..listen(cachedPostProvider(postId), (_, next) {
         if (next case AsyncData(value: final post?)) {
           _update((detail) => detail.copyWith(post: post));
@@ -184,8 +186,11 @@ class PostDetailController extends _$PostDetailController {
   Future<List<Comment>> _readComments() =>
       ref.read(watchCommentsUseCaseProvider)(postId).firstValue;
 
+  /// Changes the state, if it has a value, and not while rebuilding (after
+  /// Clear cache): the emptied cache must not replace what's on screen with
+  /// "nothing" before the reload.
   void _update(PostDetailState Function(PostDetailState detail) change) {
     final detail = state.value;
-    if (detail != null) state = AsyncData(change(detail));
+    if (detail != null && !state.isLoading) state = AsyncData(change(detail));
   }
 }

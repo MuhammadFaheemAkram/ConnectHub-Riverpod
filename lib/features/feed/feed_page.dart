@@ -64,6 +64,7 @@ class FeedPage extends ConsumerWidget {
             key: ValueKey(post.id),
             post: post,
             onTap: () => PostDetailRoute(postId: post.id).push<void>(context),
+            onAuthorTap: () => openProfile(context, post.author.id),
             onComment: () =>
                 PostDetailRoute(postId: post.id).push<void>(context),
             onLike: () => controller().toggleLike(post),

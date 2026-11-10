@@ -250,7 +250,7 @@ final class PostDetailControllerProvider
 }
 
 String _$postDetailControllerHash() =>
-    r'a355775e2a2598ce9bc6023fa049273fb8f6e3ad';
+    r'63b3636836d983355054c85d4c605c9fc815e476';
 
 /// Drives Post Detail: one post, its comments, the comment input.
 ///

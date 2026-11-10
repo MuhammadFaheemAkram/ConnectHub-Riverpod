@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connect_hub_riverpod/core/common/app_exception.dart';
 import 'package:connect_hub_riverpod/core/design_system/design_system.dart';
+import 'package:connect_hub_riverpod/core/navigation/app_routes.dart';
 import 'package:connect_hub_riverpod/core/navigation/back_to_feed_button.dart';
 import 'package:connect_hub_riverpod/domain/model/comment.dart';
 import 'package:connect_hub_riverpod/features/post_detail/post_detail_controller.dart';
@@ -121,6 +122,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.medium),
             child: PostCard(
               post: post,
+              onAuthorTap: () => openProfile(context, post.author.id),
               onLike: () => controller.toggleLike(post),
               onComment: _commentFocus.requestFocus,
               onSave: () => controller.toggleSave(post),
@@ -150,6 +152,7 @@ class _PostDetailPageState extends ConsumerState<PostDetailPage> {
               CommentTile(
                 key: ValueKey(comment.id),
                 comment: comment,
+                onAuthorTap: () => openProfile(context, comment.author.id),
                 onLike: () => controller.toggleCommentLike(comment),
                 onDelete: comment.isMine ? () => _confirmDelete(comment) : null,
               ),

@@ -58,7 +58,8 @@ void main() {
         ('Post Detail', '/posts/p1'),
         ('Post Detail, no longer available', '/posts/p999'),
         ('Create Post', '/compose'),
-        ("Someone's profile (Phase 5)", '/users/u_ada'),
+        ("Someone's profile", '/users/u_ada'),
+        ("A profile that isn't available", '/users/u_nobody'),
         ('Search', '/search'),
         ('Notifications', '/notifications'),
         ('Profile', '/profile'),
@@ -206,6 +207,33 @@ void main() {
         await tester.tap(find.text('Mark all read'));
         await tester.pumpAndSettle();
         expect(find.text('Nothing unread.'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Profile, my saved posts', (tester) async {
+        await open(tester, '/feed');
+        await tester.tap(find.byTooltip('Save').first);
+        await tester.pumpAndSettle();
+        await tester.tap(
+          find.descendant(
+            of: find.byType(NavigationBar),
+            matching: find.text('Profile'),
+          ),
+        );
+        await tester.pumpAndSettle();
+        await tester.tap(find.widgetWithText(Tab, 'Saved'));
+        await tester.pumpAndSettle();
+        expect(find.byTooltip('Unsave'), findsOneWidget);
+
+        await expectAccessible(tester);
+      });
+
+      testWidgets('Settings, "Clear cache?"', (tester) async {
+        await open(tester, '/settings');
+        await tester.tap(find.text('Clear cache'));
+        await tester.pumpAndSettle();
+        expect(find.text('Clear cache?'), findsOneWidget);
 
         await expectAccessible(tester);
       });

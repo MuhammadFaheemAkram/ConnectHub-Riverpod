@@ -57,4 +57,11 @@ class GatedFeedApi implements FeedApiService {
     await gate?.future;
     return _inner.setBookmarked(postId, bookmarked: bookmarked);
   }
+
+  @override
+  Future<List<PostDto>> getBookmarks() async {
+    requests.add('bookmarks');
+    await gate?.future;
+    return _inner.getBookmarks();
+  }
 }

@@ -32,6 +32,39 @@ class PostsDao extends DatabaseAccessor<AppDatabase> with _$PostsDaoMixin {
     );
   }
 
+  /// The cached posts by [authorId], newest first (ties by id), for their
+  /// profile: emitted again whenever one of them, or the author, changes.
+  Stream<List<CachedPost>> watchPostsByAuthor(String authorId) {
+    final query =
+        select(posts).join([
+            innerJoin(users, users.id.equalsExp(posts.authorId)),
+            leftOuterJoin(bookmarks, bookmarks.postId.equalsExp(posts.id)),
+          ])
+          ..where(posts.authorId.equals(authorId))
+          ..orderBy([
+            OrderingTerm.desc(posts.createdAt),
+            OrderingTerm.desc(posts.id),
+          ]);
+    return query.watch().map((rows) => [for (final row in rows) readPost(row)]);
+  }
+
+  /// Mirrors the server's list of [authorId]'s posts: upserts what it
+  /// returned and deletes the cached posts by them it no longer has, in one
+  /// transaction. The server always sends *every* post by the author, so a
+  /// cached one it left out no longer exists; its delete cascades to its
+  /// feed place, save and comments.
+  Future<void> replacePostsByAuthor(String authorId, List<CachedPost> entries) {
+    return transaction(() async {
+      await upsertPosts(entries);
+      await (delete(posts)..where(
+            (post) =>
+                post.authorId.equals(authorId) &
+                post.id.isNotIn([for (final entry in entries) entry.post.id]),
+          ))
+          .go();
+    });
+  }
+
   Future<bool> isCached(String postId) async => await _find(postId) != null;
 
   /// Removes a post the server no longer has.

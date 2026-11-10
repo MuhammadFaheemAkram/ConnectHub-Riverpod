@@ -13,6 +13,7 @@ class SearchResultList extends StatelessWidget {
     required this.results,
     required this.onOpenPerson,
     required this.onOpenPost,
+    required this.onOpenAuthor,
     required this.onLike,
     required this.onSave,
   });
@@ -20,6 +21,7 @@ class SearchResultList extends StatelessWidget {
   final SearchResults results;
   final ValueChanged<User> onOpenPerson;
   final ValueChanged<Post> onOpenPost;
+  final ValueChanged<Post> onOpenAuthor;
   final ValueChanged<Post> onLike;
   final ValueChanged<Post> onSave;
 
@@ -50,6 +52,7 @@ class SearchResultList extends StatelessWidget {
                 key: ValueKey(post.id),
                 post: post,
                 onTap: () => onOpenPost(post),
+                onAuthorTap: () => onOpenAuthor(post),
                 onComment: () => onOpenPost(post),
                 onLike: () => onLike(post),
                 onSave: () => onSave(post),

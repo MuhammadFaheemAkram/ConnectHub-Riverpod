@@ -100,7 +100,7 @@ class NotificationsPage extends ConsumerWidget {
     if (notification.postId case final postId?) {
       PostDetailRoute(postId: postId).push<void>(context);
     } else if (notification.userId case final userId?) {
-      UserProfileRoute(userId: userId).push<void>(context);
+      openProfile(context, userId);
     }
   }
 }

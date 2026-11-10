@@ -10,18 +10,15 @@ import 'package:material_ui/material_ui.dart';
 abstract final class AppTheme {
   static const Color seedColor = Color(0xFF0F766E);
 
-  static ThemeData light() => _build(Brightness.light);
+  static ThemeData light() => fromScheme(_seeded(Brightness.light));
 
-  static ThemeData dark() => _build(Brightness.dark);
+  static ThemeData dark() => fromScheme(_seeded(Brightness.dark));
 
-  static ThemeData _build(Brightness brightness) {
-    final colorScheme = ColorScheme.fromSeed(
-      seedColor: seedColor,
-      brightness: brightness,
-      // `fidelity` keeps the primary color close to the seed; the default
-      // variant (`tonalSpot`) would noticeably mute it.
-      dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
-    );
+  /// A theme from any scheme: the seed's, or the wallpaper's (Settings →
+  /// "Use wallpaper colors"). [AppColors] keeps its own tested values either
+  /// way: the like heart stays red on any wallpaper.
+  static ThemeData fromScheme(ColorScheme colorScheme) {
+    final brightness = colorScheme.brightness;
 
     return ThemeData(
       colorScheme: colorScheme,
@@ -45,4 +42,12 @@ abstract final class AppTheme {
       ),
     );
   }
+
+  static ColorScheme _seeded(Brightness brightness) => ColorScheme.fromSeed(
+    seedColor: seedColor,
+    brightness: brightness,
+    // `fidelity` keeps the primary color close to the seed; the default
+    // variant (`tonalSpot`) would noticeably mute it.
+    dynamicSchemeVariant: DynamicSchemeVariant.fidelity,
+  );
 }

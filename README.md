@@ -46,8 +46,8 @@ Built in **strict, reviewable phases**. Each phase ends with:
 | 2 | Feed: domain, fake server, drift v1, repositories and use cases as providers; `FeedController` (`AsyncNotifier`) | ✅ Done |
 | 3 | Post detail and comments (a family by post id; comment likes), Create Post; drift v2 | ✅ Done |
 | 4 | Search (debounce through disposal) and Notifications (filter, mark read, the tab badge); drift v3 | ✅ Done |
-| 5 | Profile (mine and others'; Saved with Undo) and Settings (appearance, dynamic color, developer tools) | ⏳ Next |
-| 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; final polish | ⬜ |
+| 5 | Profile (a family by user id; Saved with Undo) and Settings (synchronous, persisted preferences; dynamic color; Clear cache through an epoch) | ✅ Done |
+| 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; final polish | ⏳ Next |
 
 ---
 
@@ -58,8 +58,8 @@ Built in **strict, reviewable phases**. Each phase ends with:
 - ✏️ **Create a post** ✅ with a 280-character counter and an optional image
 - 🔎 **Search** ✅ people and posts (debounced, live results), with recent searches
 - 🔔 **Notifications** ✅ with All / Unread filters, mark read, mark all read, and a tab badge
-- 👤 **Profiles:** yours (Posts | Saved, with Undo) and other people's
-- ⚙️ **Settings:** System / Light / Dark, wallpaper colors on Android 12+, the badge, clear cache, a "Simulate network failure" switch, About
+- 👤 **Profiles** ✅: yours (Posts | Saved, with Undo) and other people's, opened from any author
+- ⚙️ **Settings** ✅: System / Light / Dark (no flash at launch), wallpaper colors on Android 12+, the badge, clear cache, a "Simulate network failure" switch, About
 - ♿ **Accessible:** dark mode and large text on every screen, checked by a test tour
 
 **Out of scope**, as in both native editions: sign-in (the demo user is always signed in), chat, and editing a profile.
@@ -107,10 +107,14 @@ Use case → Repository  (domain contracts; data implementations)
 
 ConnectHub-Flutter for comparison: `View → Cubit/Bloc → UseCase → Repository`, wired with `get_it`.
 
-**The provider graph after Phase 4** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
+**The provider graph after Phase 5** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
 
 ```
-ProviderScope (main.dart; automatic retry off)
+ProviderScope (main.dart; automatic retry off; preferencesStoreProvider overridden)
+├── preferencesStoreProvider         keepAlive   SharedPreferencesWithCache, opened before runApp
+├── settingsControllerProvider       keepAlive   Notifier<AppSettings> (synchronous) ← ConnectHubApp (select)
+├── cacheEpochProvider               keepAlive   Notifier<int>: Clear cache bumps it; server-data screens watch it
+├── platformColorSchemesProvider     keepAlive   wallpaper colors (Android 12+), or null
 ├── appRouterProvider                keepAlive   GoRouter
 ├── clockProvider                    keepAlive
 ├── networkSimulatorProvider ─┐      keepAlive   latency, "Simulate network failure"
@@ -123,6 +127,7 @@ ProviderScope (main.dart; automatic retry off)
 ├── commentRepositoryProvider        keepAlive   comments; optimistic delete and like
 ├── searchRepositoryProvider         keepAlive   search, results by id, recent searches
 ├── notificationRepositoryProvider   keepAlive   the server's read state
+├── profile/savedPosts/cache/settingsRepositoryProvider   keepAlive
 ├── signedInUserIdProvider           keepAlive   'u_demo' (who "mine" is)
 ├── …UseCaseProviders                auto-dispose
 ├── feedPostsProvider                auto-dispose   drift stream
@@ -134,7 +139,11 @@ ProviderScope (main.dart; automatic retry off)
 ├── currentSearchResultsProvider     auto-dispose   Notifier<SearchResultsView> (synchronous)
 │     └── searchResultsProvider(q) ← searchPeople(q) / searchPosts(q) ← searchHits(q): ref.debounce(300 ms)
 ├── notificationsControllerProvider  auto-dispose   AsyncNotifier ← kept alive by the shell's ref.listen
-└── unreadNotificationCountProvider  auto-dispose   Stream<int> (drift COUNT) → the tab badge
+├── unreadNotificationCountProvider  auto-dispose   Stream<int> (drift COUNT) → the tab badge
+├── profileControllerProvider(userId) auto-dispose family  ← ProfilePage (me), UserProfilePage
+│     └── cachedUserProvider(userId), userPostsProvider(userId)  stream families
+├── savedPostsControllerProvider     auto-dispose   AsyncNotifier<SavedPostsState> (Undo)
+└── settingsToolsProvider            auto-dispose   Clear cache, the network-failure switch
 ```
 
 ---
@@ -143,14 +152,16 @@ ProviderScope (main.dart; automatic retry off)
 
 ```
 lib/
-├── main.dart                     # runApp(ProviderScope(retry: noAutomaticRetry, …))
-├── app/                          # ConnectHubApp (MaterialApp.router), the retry policy
+├── main.dart                     # opens the preferences, then runApp(ProviderScope(overrides: […]))
+├── app/                          # ConnectHubApp (MaterialApp.router, the theme from settings), the retry policy
 ├── core/
 │   ├── common/                   # Result, AppException, relative time, counts, clockProvider
 │   ├── design_system/            # theme, AppColors, tokens, large text, PostCard, states
 │   ├── navigation/               # typed routes, the router provider
 │   ├── network/                  # network_providers, api/, dto/, fake_server/ (the only way in)
-│   └── database/                 # drift: app_database, tables/, daos/
+│   ├── database/                 # drift: app_database, tables/, daos/
+│   ├── storage/                  # PreferencesStore over SharedPreferencesWithCache
+│   └── platform/                 # wallpaper colors, the app's version
 ├── data/                         # mappers, repositories (offline-first, optimistic)
 ├── domain/                       # models, repository contracts, use cases (plain Dart)
 ├── di/                           # data_providers, use_case_providers
@@ -161,7 +172,8 @@ lib/
     ├── create_post/              # CreatePostController (a Notifier), CreatePostState, CreatePostPage
     ├── search/                   # debounced search families, CurrentSearchResults, SearchPage
     ├── notifications/            # NotificationsController, the unread count, NotificationsPage
-    └── profile/ settings/        # placeholders for now (Phase 5)
+    ├── profile/                  # ProfileController (a family), SavedPostsController, ProfileView
+    └── settings/                 # SettingsController (keepAlive), SettingsTools, SettingsPage
 test/                             # mirrors lib/; helpers/ (realStack, containers, fakes, pump helpers)
 ```
 
@@ -192,13 +204,14 @@ fvm flutter test
 - **The provider graph:** it resolves; an override reaches everything built on it, in one container only; what is kept alive and what isn't.
 - **The data layer on the real graph:** the fake server, drift (in memory), the repositories (paging, optimistic writes, rollback, one request at a time).
 - **Families:** each post id its own controller; leaving one post disposes its controller and its queries, not another's.
+- **Settings:** the saved theme on the very first frame; persistence through the real `SharedPreferencesWithCache` (in memory); Clear cache reloads every screen without an empty flash.
 - **Debounce in fake time:** three keystrokes, one search; no timer left; the previous results kept while the next query waits.
 - **Migrations:** every schema version migrates to the latest, and a cached feed survives v1 → v2 row for row.
 - **Pages and flows:** the Feed in every state with fake repositories; flows on the real stack (a like the server keeps or refuses, scrolling to the end, offline with and without a cache).
 - **The accessibility tour:** every screen and state, light and dark, at 200 % text.
 - **Architecture rules:** the domain is plain Dart; only `core/network/` knows the fake server; widgets never reach the data layer; no legacy providers.
 
-**433 tests** after Phase 4.
+**492 tests** after Phase 5.
 
 ---
 
@@ -210,14 +223,14 @@ fvm flutter test
   - the demo user `u_demo` is always signed in.
 - **The network:**
   - every request crosses a `NetworkSimulator`: 350–700 ms of latency in the app (none in tests);
-  - a switch fails every request (Settings → Developer, in Phase 5).
+  - a switch fails every request (Settings → Developer → "Simulate network failure").
 - **Offline-first:**
   - screens render drift (SQLite) only; repositories refresh drift from the API;
   - cached posts show at once and offline;
   - likes, saves, comment likes and deleted comments change drift first, then the server, and are rolled back if it refuses;
-  - the schema is versioned (v2: comments; v3: recent searches, notifications), with generated, tested migrations.
-
----
+  - the schema is versioned (v2: comments; v3: recent searches, notifications), with generated, tested migrations;
+  - Clear cache deletes the server's data but keeps saved posts, me and recent searches;
+  - the settings live in `SharedPreferencesWithCache`, not drift.
 
 ---
 
@@ -227,6 +240,7 @@ fvm flutter test
 - [Phase 2 summary](docs/PHASE_2_SUMMARY.md): the feed, providers as the DI, `AsyncNotifier`, effects, the Feed with Bloc and with Riverpod
 - [Phase 3 summary](docs/PHASE_3_SUMMARY.md): families (a post by id), "not found" as an `AsyncError`, a form `Notifier`, comments and their likes, drift v2
 - [Phase 4 summary](docs/PHASE_4_SUMMARY.md): debounce through disposal, a Riverpod 3 rule about previous dependencies, streams combined with `ref.watch`, the badge
+- [Phase 5 summary](docs/PHASE_5_SUMMARY.md): a profile family, a provider overridden in `main`, synchronous settings with no theme flash, the cache epoch
 
 ---
 
@@ -238,7 +252,7 @@ Coming with the features; Phase 6 collects them.
 
 ## 🗺️ Roadmap
 
-Phases 2–6 above. Later: sign-in, chat, and editing a profile (out of scope in every edition).
+Phase 6 above. Later: sign-in, chat, and editing a profile (out of scope in every edition).
 
 ---
 

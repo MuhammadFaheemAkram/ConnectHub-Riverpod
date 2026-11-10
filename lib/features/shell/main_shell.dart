@@ -1,5 +1,6 @@
 import 'package:connect_hub_riverpod/core/design_system/design_system.dart';
 import 'package:connect_hub_riverpod/features/notifications/notifications_controller.dart';
+import 'package:connect_hub_riverpod/features/settings/settings_controller.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_ui/material_ui.dart';
@@ -24,8 +25,14 @@ class MainShell extends ConsumerWidget {
     // A listener with nothing to do: its only job is to keep the controller
     // alive, so the first load runs now and the badge is right.
     ref.listen(notificationsControllerProvider, (_, _) {});
-    // `select`-free on purpose: a count is all this provider emits.
-    final unread = ref.watch(unreadNotificationCountProvider).value ?? 0;
+    // Settings → "Show unread badge": off, the count is hidden (and not
+    // even watched).
+    final showBadge = ref.watch(
+      settingsControllerProvider.select((settings) => settings.showUnreadBadge),
+    );
+    final unread = showBadge
+        ? ref.watch(unreadNotificationCountProvider).value ?? 0
+        : 0;
     return Scaffold(
       body: navigationShell,
       // The tab labels keep their size whatever the text setting, as on iOS's

@@ -107,6 +107,30 @@ void main() {
     }
   });
 
+  test('platform packages stay behind their seams: preferences in '
+      'core/storage (and main), wallpaper colors and app info in '
+      'core/platform', () {
+    final notStorage = sources.where(
+      (file) =>
+          !file.path.startsWith('lib/core/storage/') &&
+          file.path != 'lib/main.dart',
+    );
+    expect(
+      filesContaining("'package:shared_preferences/", among: notStorage),
+      isEmpty,
+    );
+    final notPlatform = sources.where(
+      (file) => !file.path.startsWith('lib/core/platform/'),
+    );
+    for (final package in ['dynamic_color', 'package_info_plus']) {
+      expect(
+        filesContaining("'package:$package/", among: notPlatform),
+        isEmpty,
+        reason: package,
+      );
+    }
+  });
+
   test('one ProviderScope, in main.dart; no container outside it', () {
     expect(filesContaining('ProviderScope('), ['lib/main.dart']);
     expect(filesContaining('ProviderContainer('), isEmpty);

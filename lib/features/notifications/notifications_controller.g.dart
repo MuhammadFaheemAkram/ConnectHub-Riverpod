@@ -144,7 +144,7 @@ final class NotificationsControllerProvider
 }
 
 String _$notificationsControllerHash() =>
-    r'5a3165c7f22f17bf8923b8dbad4626249286b87c';
+    r'e1c5859da79fe53166f511900caa907b6596c237';
 
 /// Drives the Notifications tab: the list, the filter, marking read.
 ///

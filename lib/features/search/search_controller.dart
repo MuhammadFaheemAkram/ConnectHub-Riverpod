@@ -1,5 +1,6 @@
 import 'package:connect_hub_riverpod/core/common/debounce.dart';
 import 'package:connect_hub_riverpod/core/common/result.dart';
+import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/di/use_case_providers.dart';
 import 'package:connect_hub_riverpod/domain/model/post.dart';
 import 'package:connect_hub_riverpod/domain/model/search_hits.dart';
@@ -25,6 +26,8 @@ const searchDebounce = Duration(milliseconds: 300);
 ///   "Try again" (which invalidates this provider).
 @riverpod
 Future<SearchHits> searchHits(Ref ref, String query) async {
+  // After Clear cache, search again: the results' posts may be gone.
+  ref.watch(cacheEpochProvider);
   await ref.debounce(searchDebounce);
   return switch (await ref.read(searchUseCaseProvider)(query)) {
     Ok(:final value) => value,

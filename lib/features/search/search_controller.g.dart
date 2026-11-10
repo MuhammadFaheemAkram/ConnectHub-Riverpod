@@ -90,7 +90,7 @@ final class SearchHitsProvider
   }
 }
 
-String _$searchHitsHash() => r'8c8827149668d3b72b858715fa0007a618132db6';
+String _$searchHitsHash() => r'f1bcbd0b0965026ab48b70e96fb3965716533156';
 
 /// What [query] matched, as ids: **debounced through disposal**.
 ///

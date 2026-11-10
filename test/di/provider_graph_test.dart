@@ -63,6 +63,17 @@ void main() {
       refreshNotificationsUseCaseProvider,
       markNotificationReadUseCaseProvider,
       markAllNotificationsReadUseCaseProvider,
+      watchUserUseCaseProvider,
+      refreshUserUseCaseProvider,
+      watchUserPostsUseCaseProvider,
+      refreshUserPostsUseCaseProvider,
+      watchSavedPostsUseCaseProvider,
+      refreshSavedPostsUseCaseProvider,
+      clearCacheUseCaseProvider,
+      getNetworkFailureUseCaseProvider,
+      setNetworkFailureUseCaseProvider,
+      getSettingsUseCaseProvider,
+      updateSettingsUseCaseProvider,
     ]) {
       expect(() => container.read(provider), returnsNormally);
     }
@@ -109,6 +120,21 @@ void main() {
       expect(fake.refreshCalls, 1);
     },
   );
+
+  test('the preferences have no default: main must provide them', () {
+    final container = ProviderContainer.test();
+
+    // Riverpod 3 wraps what a provider threw (a `ProviderException`); the
+    // message says what to do.
+    expect(
+      () => container.read(preferencesStoreProvider),
+      throwsA(
+        predicate(
+          (error) => '$error'.contains('must be overridden before runApp'),
+        ),
+      ),
+    );
+  });
 
   test("the client's signed-in user is the server's demo user", () async {
     final container = testContainer();

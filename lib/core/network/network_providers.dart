@@ -1,14 +1,18 @@
 import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
 import 'package:connect_hub_riverpod/core/common/id_generator.dart';
 import 'package:connect_hub_riverpod/core/network/api/comment_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/developer_tools_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_api_client.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_comment_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_developer_tools_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_feed_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_notification_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/fake_search_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/fake_user_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/feed_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/notification_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/api/search_api_service.dart';
+import 'package:connect_hub_riverpod/core/network/api/user_api_service.dart';
 import 'package:connect_hub_riverpod/core/network/asset_json_loader.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/fake_server.dart';
 import 'package:connect_hub_riverpod/core/network/fake_server/network_simulator.dart';
@@ -81,3 +85,13 @@ NotificationApiService notificationApiService(Ref ref) =>
       ref.watch(fakeApiClientProvider),
       ref.watch(fakeServerProvider),
     );
+
+@Riverpod(keepAlive: true)
+UserApiService userApiService(Ref ref) => FakeUserApiService(
+  ref.watch(fakeApiClientProvider),
+  ref.watch(fakeServerProvider),
+);
+
+@Riverpod(keepAlive: true)
+DeveloperToolsService developerToolsService(Ref ref) =>
+    FakeDeveloperToolsService(ref.watch(networkSimulatorProvider));

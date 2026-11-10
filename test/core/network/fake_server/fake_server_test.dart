@@ -563,6 +563,54 @@ void main() {
       expect(notifications.every((n) => n.isRead), isTrue);
     });
   });
+
+  group('users', () {
+    test('a profile is public: no email', () async {
+      final demo = await server.getUser('u_demo');
+
+      expect(demo.name, 'Demo User');
+      expect(demo.email, isNull);
+    });
+
+    test("a user's posts: all of them, newest first, as the viewer sees "
+        'them', () async {
+      await server.setLiked('u_demo', 'p1', liked: true);
+
+      final posts = await server.getUserPosts('u_demo', 'u_ada');
+
+      expect(posts.map((post) => post.id), ['p1', 'p6', 'p11']);
+      expect(posts.first.isLiked, isTrue);
+    });
+
+    test('an unknown user, and so their posts, are not found', () {
+      expect(server.getUser('u_nobody'), throwsA(isA<NotFoundException>()));
+      expect(
+        server.getUserPosts('u_demo', 'u_nobody'),
+        throwsA(isA<NotFoundException>()),
+      );
+    });
+  });
+
+  group('saved posts', () {
+    test("the viewer's own, the most recently saved first", () async {
+      var now = testNow;
+      server = FakeServer(
+        SeedLoader(AssetJsonLoader(rootBundle)),
+        IdGenerator(),
+        Clock(() => now),
+      );
+      expect(await server.getBookmarks('u_demo'), isEmpty);
+
+      for (final id in ['p7', 'p2', 'p12']) {
+        await server.setBookmarked('u_demo', id, bookmarked: true);
+        now = now.add(const Duration(minutes: 1));
+      }
+      await server.setBookmarked('u_other', 'p5', bookmarked: true);
+
+      final saved = await server.getBookmarks('u_demo');
+      expect(saved.map((post) => post.id), ['p12', 'p2', 'p7']);
+    });
+  });
 }
 
 /// An asset bundle that serves JSON strings from memory.

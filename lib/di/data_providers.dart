@@ -2,16 +2,27 @@ import 'package:connect_hub_riverpod/core/common/clock_provider.dart';
 import 'package:connect_hub_riverpod/core/common/session_providers.dart';
 import 'package:connect_hub_riverpod/core/database/app_database.dart';
 import 'package:connect_hub_riverpod/core/network/network_providers.dart';
+import 'package:connect_hub_riverpod/core/storage/preferences_store.dart';
+import 'package:connect_hub_riverpod/data/repository/cache_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/comment_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/demo_tools_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/feed_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/notification_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/post_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/profile_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/saved_posts_repository_impl.dart';
 import 'package:connect_hub_riverpod/data/repository/search_repository_impl.dart';
+import 'package:connect_hub_riverpod/data/repository/settings_repository_impl.dart';
+import 'package:connect_hub_riverpod/domain/repository/cache_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/comment_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/demo_tools_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/feed_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/notification_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/post_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/profile_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/saved_posts_repository.dart';
 import 'package:connect_hub_riverpod/domain/repository/search_repository.dart';
+import 'package:connect_hub_riverpod/domain/repository/settings_repository.dart';
 import 'package:drift/drift.dart' show QueryExecutor;
 import 'package:drift_flutter/drift_flutter.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -86,3 +97,53 @@ NotificationRepository notificationRepository(Ref ref) =>
       ref.watch(notificationApiServiceProvider),
       ref.watch(appDatabaseProvider).notificationsDao,
     );
+
+/// Where the settings are stored. There is no default: `main` creates
+/// `SharedPreferencesWithCache` *before* `runApp` and overrides this
+/// provider with it, so the settings are readable synchronously from the
+/// very first frame (no theme flash, Rule 9). Tests override it with an
+/// in-memory store.
+@Riverpod(keepAlive: true)
+PreferencesStore preferencesStore(Ref ref) => throw UnimplementedError(
+  'preferencesStoreProvider must be overridden before runApp (see main.dart)',
+);
+
+@Riverpod(keepAlive: true)
+SettingsRepository settingsRepository(Ref ref) =>
+    SettingsRepositoryImpl(ref.watch(preferencesStoreProvider));
+
+@Riverpod(keepAlive: true)
+ProfileRepository profileRepository(Ref ref) => ProfileRepositoryImpl(
+  ref.watch(userApiServiceProvider),
+  ref.watch(appDatabaseProvider).usersDao,
+  ref.watch(appDatabaseProvider).postsDao,
+);
+
+@Riverpod(keepAlive: true)
+SavedPostsRepository savedPostsRepository(Ref ref) => SavedPostsRepositoryImpl(
+  ref.watch(feedApiServiceProvider),
+  ref.watch(appDatabaseProvider).bookmarksDao,
+);
+
+@Riverpod(keepAlive: true)
+CacheRepository cacheRepository(Ref ref) => CacheRepositoryImpl(
+  ref.watch(appDatabaseProvider).cacheDao,
+  signedInUserId: ref.watch(signedInUserIdProvider),
+);
+
+@Riverpod(keepAlive: true)
+DemoToolsRepository demoToolsRepository(Ref ref) =>
+    DemoToolsRepositoryImpl(ref.watch(developerToolsServiceProvider));
+
+/// Bumped by Clear cache. The screens that show the server's data *watch*
+/// it, so clearing the cache rebuilds them, and they load again instead of
+/// showing their emptied cache as "nothing here". ConnectHub-Flutter sent a
+/// "cache cleared" stream that each Cubit subscribed to; here it's one
+/// `ref.watch` per screen.
+@Riverpod(keepAlive: true)
+class CacheEpoch extends _$CacheEpoch {
+  @override
+  int build() => 0;
+
+  void cleared() => state++;
+}

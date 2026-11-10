@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:connect_hub_riverpod/core/common/first_value.dart';
 import 'package:connect_hub_riverpod/core/common/result.dart';
+import 'package:connect_hub_riverpod/di/data_providers.dart';
 import 'package:connect_hub_riverpod/di/use_case_providers.dart';
 import 'package:connect_hub_riverpod/domain/model/post.dart';
 import 'package:connect_hub_riverpod/features/feed/feed_state.dart';
@@ -39,6 +40,10 @@ class FeedController extends _$FeedController {
 
   @override
   Future<FeedState> build() async {
+    // Clear cache bumps the epoch: watching it rebuilds the Feed, which then
+    // loads again, as on a first launch.
+    ref.watch(cacheEpochProvider);
+
     // Every change to the cached window (a like, a page, a refresh) updates
     // the posts in place. `listen`, not `watch`: watching would run this
     // build again on every change, and with it the first load's refresh.
@@ -149,10 +154,12 @@ class FeedController extends _$FeedController {
   Future<List<Post>> _readCache() =>
       ref.read(watchFeedUseCaseProvider)().firstValue;
 
-  /// Changes the feed, if it has one: not while it's loading or failed.
+  /// Changes the state, if it has a value, and not while rebuilding (after
+  /// Clear cache): the emptied cache must not replace what's on screen with
+  /// "nothing" before the reload.
   void _update(FeedState Function(FeedState feed) change) {
     final feed = state.value;
-    if (feed != null) state = AsyncData(change(feed));
+    if (feed != null && !state.isLoading) state = AsyncData(change(feed));
   }
 
   static LoadMoreStatus _status(bool hasMore) =>

@@ -1,9 +1,12 @@
 import 'package:connect_hub_riverpod/core/database/app_database.steps.dart';
+import 'package:connect_hub_riverpod/core/database/daos/bookmarks_dao.dart';
+import 'package:connect_hub_riverpod/core/database/daos/cache_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/comments_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/feed_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/notifications_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/posts_dao.dart';
 import 'package:connect_hub_riverpod/core/database/daos/search_dao.dart';
+import 'package:connect_hub_riverpod/core/database/daos/users_dao.dart';
 import 'package:connect_hub_riverpod/core/database/tables/bookmarks_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/comments_table.dart';
 import 'package:connect_hub_riverpod/core/database/tables/feed_items_table.dart';
@@ -34,7 +37,16 @@ part 'app_database.g.dart';
     RecentSearches,
     Notifications,
   ],
-  daos: [PostsDao, FeedDao, CommentsDao, SearchDao, NotificationsDao],
+  daos: [
+    PostsDao,
+    FeedDao,
+    CommentsDao,
+    SearchDao,
+    NotificationsDao,
+    UsersDao,
+    BookmarksDao,
+    CacheDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   /// [connection] comes from `databaseConnectionProvider`: a file in the
