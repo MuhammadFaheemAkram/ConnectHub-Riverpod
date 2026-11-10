@@ -12,9 +12,10 @@ part of 'app_router.dart';
 // ignore_for_file: type=lint, type=warning
 /// The app's [GoRouter], as a provider.
 ///
-/// - **Why a provider:** the router can read other providers (Phase 5's
-///   redirect for my own profile reads the signed-in user's id), and tests
-///   reach the same instance through the container instead of a global.
+/// - **Why a provider:** one router per container, so tests reach the same
+///   instance through the container instead of a global. Routes that need
+///   a provider (the redirect for my own profile reads the signed-in user's
+///   id) reach the same container with `ProviderScope.containerOf`.
 /// - **Why `keepAlive`:** generated providers are disposed as soon as nothing
 ///   listens to them. The router holds the navigation stack, so it must live
 ///   as long as the app does, even in a frame where no widget watches it.
@@ -26,9 +27,10 @@ final appRouterProvider = AppRouterProvider._();
 
 /// The app's [GoRouter], as a provider.
 ///
-/// - **Why a provider:** the router can read other providers (Phase 5's
-///   redirect for my own profile reads the signed-in user's id), and tests
-///   reach the same instance through the container instead of a global.
+/// - **Why a provider:** one router per container, so tests reach the same
+///   instance through the container instead of a global. Routes that need
+///   a provider (the redirect for my own profile reads the signed-in user's
+///   id) reach the same container with `ProviderScope.containerOf`.
 /// - **Why `keepAlive`:** generated providers are disposed as soon as nothing
 ///   listens to them. The router holds the navigation stack, so it must live
 ///   as long as the app does, even in a frame where no widget watches it.
@@ -40,9 +42,10 @@ final class AppRouterProvider
     with $Provider<GoRouter> {
   /// The app's [GoRouter], as a provider.
   ///
-  /// - **Why a provider:** the router can read other providers (Phase 5's
-  ///   redirect for my own profile reads the signed-in user's id), and tests
-  ///   reach the same instance through the container instead of a global.
+  /// - **Why a provider:** one router per container, so tests reach the same
+  ///   instance through the container instead of a global. Routes that need
+  ///   a provider (the redirect for my own profile reads the signed-in user's
+  ///   id) reach the same container with `ProviderScope.containerOf`.
   /// - **Why `keepAlive`:** generated providers are disposed as soon as nothing
   ///   listens to them. The router holds the navigation stack, so it must live
   ///   as long as the app does, even in a frame where no widget watches it.

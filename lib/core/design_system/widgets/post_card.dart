@@ -14,8 +14,8 @@ import 'package:material_ui/material_ui.dart';
 /// Every callback is optional, so each screen wires only what it supports,
 /// and the card itself holds no navigation or business logic. The buttons
 /// show whatever [post] says: after a tap, the new state arrives from drift.
-/// A missing callback disables its button (Phase 2 has no post page or
-/// profiles to open yet).
+/// A missing callback disables its button (a screen that can't open the
+/// post, say).
 class PostCard extends StatelessWidget {
   const PostCard({
     super.key,

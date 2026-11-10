@@ -12,7 +12,7 @@ class NetworkSimulator {
   final double latencyFactor;
 
   /// While `true`, every request throws [NetworkException], as if offline.
-  /// Settings → Developer → "Simulate network failure" flips it (Phase 5).
+  /// Settings → Developer → "Simulate network failure" flips it.
   bool failRequests;
 
   /// Waits for [latency] (scaled by [latencyFactor]), then fails if

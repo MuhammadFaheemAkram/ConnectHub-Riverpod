@@ -396,5 +396,32 @@ void main() {
       // notifier throws here.
       await expectLater(liking, completes);
     });
+
+    test('a pull to refresh that answers after the Feed is gone touches '
+        'nothing (ref.mounted)', () async {
+      feed = FakeFeedRepository(cached: [p1]);
+      container = testContainer(
+        overrides: [
+          feedRepositoryProvider.overrideWithValue(feed),
+          postRepositoryProvider.overrideWithValue(posts),
+        ],
+      );
+      final subscription = container.listen(feedControllerProvider, (_, _) {});
+      await pumpEventQueue();
+      feed
+        ..gate = Completer<void>()
+        ..refreshedWindow = [p2, p1];
+
+      final refreshing = container
+          .read(feedControllerProvider.notifier)
+          .refresh();
+      subscription.close();
+      await pumpEventQueue();
+      feed.gate!.complete();
+
+      // Without the `ref.mounted` check after the request, reading the cache
+      // through a disposed `ref` throws here.
+      await expectLater(refreshing, completes);
+    });
   });
 }

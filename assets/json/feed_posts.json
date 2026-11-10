@@ -136,7 +136,7 @@
   },
   {
     "id": "p16",
-    "author": { "id": "u_demo", "name": "Demo User", "avatarURL": "https://i.pravatar.cc/300?img=68", "bio": "Exploring ConnectHub — this profile is served from bundled JSON by the fake auth service.", "followersCount": 128, "followingCount": 87 },
+    "author": { "id": "u_demo", "name": "Demo User", "avatarURL": "https://i.pravatar.cc/300?img=68", "bio": "Exploring ConnectHub — this profile is served from bundled JSON by the fake server.", "followersCount": 128, "followingCount": 87 },
     "content": "Offline-first tip: let every screen read only from the local database, and let the network do nothing but refresh it. Caching, instant launches and offline support all come from that one rule.",
     "imageURL": null,
     "createdAt": "2026-07-23T16:00:00Z",
@@ -145,7 +145,7 @@
   },
   {
     "id": "p17",
-    "author": { "id": "u_demo", "name": "Demo User", "avatarURL": "https://i.pravatar.cc/300?img=68", "bio": "Exploring ConnectHub — this profile is served from bundled JSON by the fake auth service.", "followersCount": 128, "followingCount": 87 },
+    "author": { "id": "u_demo", "name": "Demo User", "avatarURL": "https://i.pravatar.cc/300?img=68", "bio": "Exploring ConnectHub — this profile is served from bundled JSON by the fake server.", "followersCount": 128, "followingCount": 87 },
     "content": "How do you test time-based logic? Injecting a clock has been the cleanest approach for me so far. What else has worked for you?",
     "imageURL": null,
     "createdAt": "2026-07-22T12:30:00Z",

@@ -28,7 +28,7 @@ Like the original, everything runs on a **fake, in-memory backend**: no API key,
 > - **side effects** through `ref.listen`, and `ref.mounted` after every async gap;
 > - **debounced search through disposal**, without a stream library.
 >
-> It is the Flutter counterpart of the native "architecture editions": [ConnectHub-MVI](https://github.com/MuhammadFaheemAkram/ConnectHub-MVI) (Android) and [ConnectHub-TCA](https://github.com/MuhammadFaheemAkram/ConnectHub-TCA) (iOS). The final `docs/BLOC_VS_RIVERPOD.md` compares the two Flutter editions screen by screen.
+> It is the Flutter counterpart of the native "architecture editions": [ConnectHub-MVI](https://github.com/MuhammadFaheemAkram/ConnectHub-MVI) (Android) and [ConnectHub-TCA](https://github.com/MuhammadFaheemAkram/ConnectHub-TCA) (iOS). **[docs/BLOC_VS_RIVERPOD.md](docs/BLOC_VS_RIVERPOD.md)** compares the two Flutter editions screen by screen, with the real code from both.
 
 ---
 
@@ -47,19 +47,21 @@ Built in **strict, reviewable phases**. Each phase ends with:
 | 3 | Post detail and comments (a family by post id; comment likes), Create Post; drift v2 | ✅ Done |
 | 4 | Search (debounce through disposal) and Notifications (filter, mark read, the tab badge); drift v3 | ✅ Done |
 | 5 | Profile (a family by user id; Saved with Undo) and Settings (synchronous, persisted preferences; dynamic color; Clear cache through an epoch) | ✅ Done |
-| 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; final polish | ⏳ Next |
+| 6 | Documentation and the Bloc vs Riverpod comparison; screenshots; a release build; final polish | ✅ Done |
+
+All six phases are complete. What could come next is in the [roadmap](docs/ROADMAP.md).
 
 ---
 
-## ✨ Features (planned scope)
+## ✨ Features
 
-- 📰 **Feed** ✅: pull to refresh, infinite scroll, likes and saves (optimistic, with rollback), a New post button
-- 💬 **Post detail** ✅ with comments inline: add one, **like a comment**, delete your own
-- ✏️ **Create a post** ✅ with a 280-character counter and an optional image
-- 🔎 **Search** ✅ people and posts (debounced, live results), with recent searches
-- 🔔 **Notifications** ✅ with All / Unread filters, mark read, mark all read, and a tab badge
-- 👤 **Profiles** ✅: yours (Posts | Saved, with Undo) and other people's, opened from any author
-- ⚙️ **Settings** ✅: System / Light / Dark (no flash at launch), wallpaper colors on Android 12+, the badge, clear cache, a "Simulate network failure" switch, About
+- 📰 **Feed:** pull to refresh, infinite scroll, likes and saves (optimistic, with rollback), a New post button
+- 💬 **Post detail** with comments inline: add one, **like a comment**, delete your own
+- ✏️ **Create a post** with a 280-character counter and an optional image
+- 🔎 **Search** people and posts (debounced, live results), with recent searches
+- 🔔 **Notifications** with All / Unread filters, mark read, mark all read, and a tab badge
+- 👤 **Profiles:** yours (Posts | Saved, with Undo) and other people's, opened from any author
+- ⚙️ **Settings:** System / Light / Dark (no flash at launch), wallpaper colors on Android 12+, the badge, clear cache, a "Simulate network failure" switch, About
 - ♿ **Accessible:** dark mode and large text on every screen, checked by a test tour
 
 **Out of scope**, as in both native editions: sign-in (the demo user is always signed in), chat, and editing a profile.
@@ -105,9 +107,9 @@ Use case → Repository  (domain contracts; data implementations)
    └─▶ fake API services → in-memory FakeServer
 ```
 
-ConnectHub-Flutter for comparison: `View → Cubit/Bloc → UseCase → Repository`, wired with `get_it`.
+ConnectHub-Flutter for comparison: `View → Cubit/Bloc → UseCase → Repository`, wired with `get_it`. The layers, their rules and the key decisions are in [ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
-**The provider graph after Phase 5** (details in [the Phase 2 summary](docs/PHASE_2_SUMMARY.md)):
+**The provider graph** (all 88 providers, what each watches and how long it lives: [PROVIDER_GRAPH.md](docs/PROVIDER_GRAPH.md)):
 
 ```
 ProviderScope (main.dart; automatic retry off; preferencesStoreProvider overridden)
@@ -206,12 +208,13 @@ fvm flutter test
 - **Families:** each post id its own controller; leaving one post disposes its controller and its queries, not another's.
 - **Settings:** the saved theme on the very first frame; persistence through the real `SharedPreferencesWithCache` (in memory); Clear cache reloads every screen without an empty flash.
 - **Debounce in fake time:** three keystrokes, one search; no timer left; the previous results kept while the next query waits.
-- **Migrations:** every schema version migrates to the latest, and a cached feed survives v1 → v2 row for row.
+- **Migrations:** every schema version migrates to the latest, with data tests for v1 → v2 and v2 → v3.
 - **Pages and flows:** the Feed in every state with fake repositories; flows on the real stack (a like the server keeps or refuses, scrolling to the end, offline with and without a cache).
 - **The accessibility tour:** every screen and state, light and dark, at 200 % text.
 - **Architecture rules:** the domain is plain Dart; only `core/network/` knows the fake server; widgets never reach the data layer; no legacy providers.
+- **Mutation checks:** every phase broke its key rules on purpose, one at a time, and every survivor became a test ([TESTING.md](docs/TESTING.md#mutation-checks)).
 
-**492 tests** after Phase 5.
+**498 tests**, in about 25 seconds. How they're built: [TESTING.md](docs/TESTING.md).
 
 ---
 
@@ -232,27 +235,50 @@ fvm flutter test
   - Clear cache deletes the server's data but keeps saved posts, me and recent searches;
   - the settings live in `SharedPreferencesWithCache`, not drift.
 
+The services, latencies, seed data and server rules are in [API_SIMULATION.md](docs/API_SIMULATION.md).
+
 ---
 
 ## 📚 Docs
 
+**Start here:**
+- **[BLOC_VS_RIVERPOD.md](docs/BLOC_VS_RIVERPOD.md):** the Feed, Search and Settings side by side with ConnectHub-Flutter's code; DI, scoping, testing, trade-offs, and the native editions
+- [RIVERPOD_GUIDE.md](docs/RIVERPOD_GUIDE.md): providers, `ref`, notifiers, families, lifetimes and `AsyncValue`, as used here
+- [PROVIDER_GRAPH.md](docs/PROVIDER_GRAPH.md): every provider, what it watches, its lifetime
+- [SIDE_EFFECTS.md](docs/SIDE_EFFECTS.md): effects through `ref.listen`, `ref.mounted`, optimistic writes, Clear cache, retry
+
+**Reference:**
+- [ARCHITECTURE.md](docs/ARCHITECTURE.md) · [API_SIMULATION.md](docs/API_SIMULATION.md) · [TESTING.md](docs/TESTING.md)
+- [LEARNING_NOTES.md](docs/LEARNING_NOTES.md) (every concept, and where to see it) · [INTERVIEW_NOTES.md](docs/INTERVIEW_NOTES.md)
+- [ROADMAP.md](docs/ROADMAP.md) · [SCREENSHOTS.md](docs/SCREENSHOTS.md) · [CHANGELOG.md](CHANGELOG.md)
+
+**How it was built, phase by phase:**
 - [Phase 1 summary](docs/PHASE_1_SUMMARY.md): the foundation, the Riverpod concepts, the provider graph
 - [Phase 2 summary](docs/PHASE_2_SUMMARY.md): the feed, providers as the DI, `AsyncNotifier`, effects, the Feed with Bloc and with Riverpod
 - [Phase 3 summary](docs/PHASE_3_SUMMARY.md): families (a post by id), "not found" as an `AsyncError`, a form `Notifier`, comments and their likes, drift v2
 - [Phase 4 summary](docs/PHASE_4_SUMMARY.md): debounce through disposal, a Riverpod 3 rule about previous dependencies, streams combined with `ref.watch`, the badge
 - [Phase 5 summary](docs/PHASE_5_SUMMARY.md): a profile family, a provider overridden in `main`, synchronous settings with no theme flash, the cache epoch
+- [Phase 6 summary](docs/PHASE_6_SUMMARY.md): the docs, a release-only bug, the final mutation pass
 
 ---
 
 ## 📸 Screenshots
 
-Coming with the features; Phase 6 collects them.
+| Feed | Post detail | Search | Notifications (dark) | Settings (dark) |
+|:---:|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/feed-light.png" width="160" alt="The feed"> | <img src="docs/screenshots/post-detail-light.png" width="160" alt="Post detail with comments"> | <img src="docs/screenshots/search-light.png" width="160" alt="Search results for ada"> | <img src="docs/screenshots/notifications-dark.png" width="160" alt="Notifications in dark mode"> | <img src="docs/screenshots/settings-dark.png" width="160" alt="Settings in dark mode"> |
+
+| My profile (dark) | Ada's profile | Large text | Wallpaper colors (Android) |
+|:---:|:---:|:---:|:---:|
+| <img src="docs/screenshots/profile-dark.png" width="160" alt="My profile in dark mode"> | <img src="docs/screenshots/profile-other-light.png" width="160" alt="Ada Lovelace's profile"> | <img src="docs/screenshots/large-text-settings.png" width="160" alt="Settings at the largest text size"> | <img src="docs/screenshots/android-dynamic-color-feed.png" width="160" alt="The feed with wallpaper colors on Android"> |
+
+More, with how they were taken: [SCREENSHOTS.md](docs/SCREENSHOTS.md).
 
 ---
 
 ## 🗺️ Roadmap
 
-Phase 6 above. Later: sign-in, chat, and editing a profile (out of scope in every edition).
+All six phases are done. Ideas for what's next (a `ProviderObserver`, scoped overrides, Riverpod's experimental mutations and offline persistence, and the out-of-scope features) are in [ROADMAP.md](docs/ROADMAP.md).
 
 ---
 
@@ -273,6 +299,12 @@ Phase 6 above. Later: sign-in, chat, and editing a profile (out of scope in ever
 | DI | Hilt | `@Dependency` | `get_it` + `injectable` | **providers + `overrides`** |
 | Scoping | `ViewModel` scope | `Store` scope | `BlocProvider` | **auto-dispose; `keepAlive`** |
 | Tests | reducer tests | `TestStore` | `bloc_test` | **`ProviderContainer.test()`** |
+
+---
+
+## 🤝 Contributing
+
+See [CONTRIBUTING.md](CONTRIBUTING.md), the [Code of Conduct](CODE_OF_CONDUCT.md) and the [security policy](SECURITY.md).
 
 ---
 

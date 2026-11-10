@@ -1,6 +1,10 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- The avatars and post photos come from the network. The debug and
+         profile manifests add this for development only, so without it a
+         release build shows every image's fallback. -->
+    <uses-permission android:name="android.permission.INTERNET"/>
     <application
-        android:label="connect_hub_riverpod"
+        android:label="ConnectHub"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
